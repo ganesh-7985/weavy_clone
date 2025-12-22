@@ -21,18 +21,23 @@ interface SidebarProps {
   onImport: () => void;
   onSave: () => void;
   onLoadTemplate: () => void;
+  onBackToProjects?: () => void;
   workflowName?: string;
 }
 
-export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowName = 'My First Weavy' }: SidebarProps) {
+export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToProjects, workflowName = 'untitled' }: SidebarProps) {
   const {
     addTextNode,
     addImageNode,
     addLLMNode,
+    setWorkflowName,
   } = useWorkflowStore();
 
-  const [activePanel, setActivePanel] = useState<'none' | 'search'>('none');
+  const [activePanel, setActivePanel] = useState<'none' | 'search' | 'recent'>('none');
+  const [activeTab, setActiveTab] = useState<'recent' | 'toolbox'>('recent');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(workflowName);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, nodeType: string) => {
@@ -64,8 +69,30 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
     [addTextNode, addImageNode, addLLMNode]
   );
 
-  const togglePanel = () => {
+  const toggleSearchPanel = () => {
     setActivePanel(activePanel === 'search' ? 'none' : 'search');
+  };
+
+  const toggleRecentPanel = () => {
+    setActivePanel(activePanel === 'recent' ? 'none' : 'recent');
+  };
+
+  const handleNameSave = () => {
+    if (editedName.trim()) {
+      setWorkflowName(editedName.trim());
+    } else {
+      setEditedName(workflowName);
+    }
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNameSave();
+    } else if (e.key === 'Escape') {
+      setEditedName(workflowName);
+      setIsEditingName(false);
+    }
   };
 
   // Quick access items - exactly 3 buttons
@@ -75,22 +102,22 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles },
   ];
 
-  // Icon sidebar items
+  // Icon sidebar items - matching Weavy's toolbar
   const sidebarIcons = [
-    { icon: Search, action: togglePanel, label: 'Search', isActive: activePanel === 'search' },
-    { icon: History, action: () => {}, label: 'History', isActive: false },
-    { icon: Briefcase, action: () => {}, label: 'Assets', isActive: false },
-    { icon: ImageIcon, action: () => {}, label: 'Images', isActive: false },
-    { icon: Box, action: () => {}, label: '3D', isActive: false },
-    { icon: Sparkles, action: () => {}, label: 'AI', isActive: false },
+    { icon: Search, action: toggleSearchPanel, label: 'Search', isActive: activePanel === 'search' },
+    { icon: History, action: toggleRecentPanel, label: 'Quick Access', isActive: activePanel === 'recent' },
   ];
 
   return (
     <div className="flex h-full">
       {/* Icon Sidebar - Always visible */}
-      <div className="w-14 h-full bg-[#18181b] flex flex-col items-center py-3">
-        {/* Logo */}
-        <div className="mb-3 p-2">
+      <div className="w-14 h-full bg-[#121212] border-r border-[rgba(255,255,255,0.12)] flex flex-col items-center py-3">
+        {/* Logo - Click to go back to projects */}
+        <button 
+          onClick={onBackToProjects}
+          className="mb-3 p-2 hover:bg-[rgba(255,255,255,0.08)] rounded-lg transition-colors"
+          title="Back to Projects"
+        >
           <div className="flex items-center gap-1">
             <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
               <rect x="2" y="4" width="4" height="16" rx="1" />
@@ -100,7 +127,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
             </svg>
             <span className="text-[10px] text-[#666666]">▾</span>
           </div>
-        </div>
+        </button>
 
         {/* Main Icons */}
         <div className="flex-1 flex flex-col gap-1 mt-2">
@@ -110,8 +137,8 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
               onClick={item.action}
               className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${
                 item.isActive
-                  ? 'bg-[#f6ffa8] text-[#0d0d0d]'
-                  : 'text-[#666666] hover:text-white hover:bg-[#252528]'
+                  ? 'bg-[#f6ffa8] text-black'
+                  : 'text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)]'
               }`}
               title={item.label}
             >
@@ -123,19 +150,19 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
         {/* Bottom Icons */}
         <div className="flex flex-col gap-1 mt-auto">
           <button
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-[#666666] hover:text-white hover:bg-[#252528] transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all"
             title="Documentation"
           >
             <FileText className="w-4 h-4" />
           </button>
           <button
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-[#666666] hover:text-white hover:bg-[#252528] transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all"
             title="Help"
           >
             <HelpCircle className="w-4 h-4" />
           </button>
           <button
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-[#666666] hover:text-white hover:bg-[#252528] transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-all"
             title="Discord"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -145,27 +172,94 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
         </div>
       </div>
 
-      {/* Expanded Panel */}
+      {/* Expanded Panel  */}
       {activePanel === 'search' && (
-        <div className="w-60 h-full bg-[#18181b] border-l border-[#252528] flex flex-col overflow-hidden">
-          {/* Workflow Name Header */}
-          <div className="px-4 py-3 border-b border-[#252528]">
-            <div className="bg-[#252528] rounded-lg px-3 py-2">
-              <span className="text-sm text-white font-medium">{workflowName}</span>
-            </div>
+        <div className="w-60 h-full bg-[#121212] border-l border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
+          {/* Workflow Name Header /}
+          <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
+            {isEditingName ? (
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={handleNameSave}
+                onKeyDown={handleNameKeyDown}
+                autoFocus
+                className="w-full bg-[rgba(255,255,255,0.04)] rounded-lg px-3 py-2 text-sm text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#f6ffa8]"
+              />
+            ) : (
+              <div 
+                onClick={() => {
+                  setEditedName(workflowName);
+                  setIsEditingName(true);
+                }}
+                className="bg-[rgba(255,255,255,0.04)] rounded-lg px-3 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+              >
+                <span className="text-sm text-white font-medium">{workflowName}</span>
+              </div>
+            )}
           </div>
 
           {/* Search Input */}
           <div className="px-4 py-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#555555]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[rgba(255,255,255,0.4)]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
                 autoFocus
-                className="w-full pl-9 pr-3 py-2 bg-[#252528] border border-[#333338] rounded-lg text-xs text-white placeholder-[#555555] focus:outline-none focus:border-[#444448] transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Search Results */}
+          <div className="px-4 flex-1 overflow-y-auto">
+            <p className="text-xs text-[rgba(255,255,255,0.4)]">Type to search nodes...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Expanded Panel - Quick Access / Toolbox */}
+      {activePanel === 'recent' && (
+        <div className="w-60 h-full bg-[#121212] border-l border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
+          {/* Workflow Name Header - Editable */}
+          <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
+            {isEditingName ? (
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={handleNameSave}
+                onKeyDown={handleNameKeyDown}
+                autoFocus
+                className="w-full bg-[rgba(255,255,255,0.04)] rounded-lg px-3 py-2 text-sm text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#f6ffa8]"
+              />
+            ) : (
+              <div 
+                onClick={() => {
+                  setEditedName(workflowName);
+                  setIsEditingName(true);
+                }}
+                className="bg-[rgba(255,255,255,0.04)] rounded-lg px-3 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+              >
+                <span className="text-sm text-white font-medium">{workflowName}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Search Input */}
+          <div className="px-4 py-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[rgba(255,255,255,0.4)]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search"
+                className="w-full pl-9 pr-3 py-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
               />
             </div>
           </div>
@@ -180,36 +274,14 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, workflowNa
                   draggable
                   onDragStart={(e) => handleDragStart(e, item.type)}
                   onClick={() => handleAddNode(item.type)}
-                  className="flex flex-col items-center gap-2 p-4 bg-[#252528] border border-[#333338] rounded-lg hover:border-[#444448] cursor-grab active:cursor-grabbing transition-all group"
+                  className="flex flex-col items-center gap-2 p-3 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.08)] cursor-grab active:cursor-grabbing transition-all group"
                 >
-                  <item.icon className="w-5 h-5 text-[#888888] group-hover:text-white" />
-                  <span className="text-[11px] text-[#888888] group-hover:text-white text-center leading-tight">
+                  <item.icon className="w-5 h-5 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
+                  <span className="text-[11px] text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">
                     {item.label}
                   </span>
                 </div>
               ))}
-              
-              {/* Export */}
-              <div
-                onClick={onExport}
-                className="flex flex-col items-center gap-2 p-4 bg-[#252528] border border-[#333338] rounded-lg hover:border-[#444448] cursor-pointer transition-all group"
-              >
-                <Upload className="w-5 h-5 text-[#888888] group-hover:text-white" />
-                <span className="text-[11px] text-[#888888] group-hover:text-white text-center leading-tight">
-                  Export
-                </span>
-              </div>
-
-              {/* Import */}
-              <div
-                onClick={onImport}
-                className="flex flex-col items-center gap-2 p-4 bg-[#252528] border border-[#333338] rounded-lg hover:border-[#444448] cursor-pointer transition-all group"
-              >
-                <Download className="w-5 h-5 text-[#888888] group-hover:text-white" />
-                <span className="text-[11px] text-[#888888] group-hover:text-white text-center leading-tight">
-                  Import
-                </span>
-              </div>
             </div>
           </div>
         </div>

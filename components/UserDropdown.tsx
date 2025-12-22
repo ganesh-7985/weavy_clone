@@ -30,8 +30,8 @@ export function UserDropdown() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 px-2 py-1.5">
-        <div className="w-7 h-7 rounded-full bg-[#252528] animate-pulse" />
-        <div className="w-20 h-4 bg-[#252528] rounded animate-pulse" />
+        <div className="w-7 h-7 rounded-full bg-[rgba(255,255,255,0.08)] animate-pulse" />
+        <div className="w-20 h-4 bg-[rgba(255,255,255,0.08)] rounded animate-pulse" />
       </div>
     );
   }
@@ -40,7 +40,7 @@ export function UserDropdown() {
     return (
       <button
         onClick={() => router.push('/login')}
-        className="flex items-center gap-2 px-4 py-2 bg-[#f6ffa8] text-[#0d0d12] rounded-lg font-medium text-sm hover:bg-[#f8ffb8] transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-[#f6ffa8] text-black rounded-lg font-medium text-sm hover:bg-[#e5ee97] transition-colors"
       >
         Sign In
       </button>
@@ -57,7 +57,7 @@ export function UserDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#1a1a1f] transition-colors"
+        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.08)] transition-colors"
       >
         {avatarUrl ? (
           <img
@@ -71,13 +71,13 @@ export function UserDropdown() {
           </div>
         )}
         <span className="text-white text-sm truncate max-w-[120px]">{displayName}</span>
-        <ChevronDown className={`w-4 h-4 text-[#666666] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-[rgba(255,255,255,0.4)] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-[#18181b] border border-[#252528] rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-72 bg-[#121212] border border-[rgba(255,255,255,0.12)] rounded-xl shadow-xl z-50 overflow-hidden">
           {/* User Info */}
-          <div className="p-4 border-b border-[#252528]">
+          <div className="p-4 border-b border-[rgba(255,255,255,0.12)]">
             <div className="flex items-center gap-3">
               {avatarUrl ? (
                 <img
@@ -97,8 +97,8 @@ export function UserDropdown() {
           </div>
 
           {/* Credits */}
-          <div className="p-4 border-b border-[#252528]">
-            <p className="text-[#888888] text-xs mb-1">Credits</p>
+          <div className="p-4 border-b border-[rgba(255,255,255,0.12)]">
+            <p className="text-[rgba(255,255,255,0.6)] text-xs mb-1">Credits</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#f6ffa8]" />
@@ -111,8 +111,8 @@ export function UserDropdown() {
           </div>
 
           {/* Plan */}
-          <div className="p-4 border-b border-[#252528]">
-            <p className="text-[#888888] text-xs mb-1">Plan</p>
+          <div className="p-4 border-b border-[rgba(255,255,255,0.12)]">
+            <p className="text-[rgba(255,255,255,0.6)] text-xs mb-1">Plan</p>
             <div className="flex items-center justify-between">
               <span className="text-white font-medium capitalize">{plan}</span>
               {plan === 'free' && (
@@ -125,13 +125,13 @@ export function UserDropdown() {
 
           {/* Actions */}
           <div className="p-2">
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[#888888] text-sm rounded-lg hover:bg-[#252528] hover:text-white transition-colors">
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[rgba(255,255,255,0.6)] text-sm rounded-lg hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-colors">
               <Settings className="w-4 h-4" />
               Settings
             </button>
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-[#888888] text-sm rounded-lg hover:bg-[#252528] hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-[rgba(255,255,255,0.6)] text-sm rounded-lg hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Sign out

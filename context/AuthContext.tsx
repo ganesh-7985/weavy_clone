@@ -49,17 +49,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     if (!supabase) return null;
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
+    
+    try {
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 3000)
+      );
+      
+      const fetchPromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+      return data as UserProfile;
+    } catch (error) {
+      console.error('Profile fetch failed:', error);
       return null;
     }
-    return data as UserProfile;
   };
 
   useEffect(() => {
@@ -74,13 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Set loading to false immediately after getting user
+        setIsLoading(false);
+        
+        // Fetch profile in background (don't block UI)
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setProfile(profile);
+          fetchProfile(session.user.id).then(setProfile);
         }
       } catch (error) {
         console.error('Error getting session:', error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -93,13 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setProfile(profile);
+          // Fetch profile in background
+          fetchProfile(session.user.id).then(setProfile);
         } else {
           setProfile(null);
         }
-        
-        setIsLoading(false);
       }
     );
 

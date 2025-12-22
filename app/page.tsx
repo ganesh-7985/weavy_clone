@@ -106,9 +106,11 @@ export default function Home() {
   }, [clearWorkflow, loadWorkflow]);
 
   const handleBackToProjects = useCallback(() => {
+    const workflow = saveWorkflow();
+    saveWorkflowToStorage(workflow);
     setShowProjects(true);
     window.history.pushState({ view: 'projects' }, '', '/');
-  }, []);
+  }, [saveWorkflow]);
 
   const handleSave = useCallback(() => {
     const workflow = saveWorkflow();
@@ -240,6 +242,7 @@ export default function Home() {
         onImport={handleImport}
         onSave={handleSave}
         onLoadTemplate={handleLoadTemplate}
+        onBackToProjects={handleBackToProjects}
         workflowName={workflowName}
       />
 
