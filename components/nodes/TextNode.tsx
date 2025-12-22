@@ -1,14 +1,38 @@
 'use client';
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Type, X } from 'lucide-react';
-import { TextNodeData } from '@/types';
 import { useWorkflowStore } from '@/store/workflowStore';
+import { NodeMenu } from './NodeMenu';
+import { TextNodeData } from '@/types';
+
+interface HandleLabelProps {
+  label: string;
+  color: string;
+  position: 'left' | 'right';
+}
+
+function HandleLabel({ label, color, position }: HandleLabelProps) {
+  return (
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap z-10 ${
+        position === 'left' ? 'right-full mr-2' : 'left-full ml-2'
+      }`}
+    >
+      <span
+        className="text-xs font-medium"
+        style={{ color }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
 
 function TextNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as TextNodeData;
   const { updateNodeData, deleteNode } = useWorkflowStore();
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -17,44 +41,49 @@ function TextNodeComponent({ id, data, selected }: NodeProps) {
     [id, updateNodeData]
   );
 
-  const handleDelete = useCallback(() => {
-    deleteNode(id);
-  }, [id, deleteNode]);
-
   return (
     <div
-      className={`bg-[#1a1a24] border rounded-xl shadow-xl min-w-[280px] max-w-[320px] transition-all duration-150 ${
-        selected ? 'border-[#a855f7]' : 'border-[#2a2a35]'
-      }`}
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[380px] transition-all duration-150"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a35]">
+      <div className="flex items-center justify-between px-4 py-3">
         <span className="text-sm font-medium text-white">Prompt</span>
-        <button
-          onClick={handleDelete}
-          className="p-1 hover:bg-[#333340] rounded transition-colors"
-        >
-          <X className="w-3.5 h-3.5 text-[#666666] hover:text-white" />
-        </button>
+        <NodeMenu
+          nodeId={id}
+          nodeName="Prompt"
+          nodeDescription="Text prompt input"
+          onDuplicate={() => {}}
+          onRename={() => {}}
+          onDelete={() => deleteNode(id)}
+        />
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="px-4 pb-4">
         <textarea
           value={nodeData.text}
           onChange={handleTextChange}
           placeholder="Enter your prompt..."
-          className="w-full h-24 px-3 py-2.5 bg-[#252530] border border-[#3a3a45] rounded-lg text-sm text-white placeholder-[#666666] resize-none focus:outline-none focus:border-[#a855f7] transition-colors"
+          className="w-full h-24 px-3 py-2.5 bg-[#353539] border border-[#3a3a45] rounded-lg text-sm text-white placeholder-[#555555] resize-none focus:outline-none focus:border-[#a855f7] transition-colors"
         />
       </div>
 
       {/* Output Handle */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="output"
-        className="!w-3 !h-3 !bg-[#22d3ee] !border-2 !border-[#0d0d12]"
-      />
+      <div
+        className="group absolute"
+        style={{ right: -12, top: '50%', transform: 'translateY(-50%)' }}
+      >
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="output"
+          className="!w-4 !h-4 !bg-[#a855f7] !border-4 !border-[#1a1a1f] !rounded-full"
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+        />
+        {isHovered && <HandleLabel label="Prompt" color="#a855f7" position="right" />}
+      </div>
     </div>
   );
 }

@@ -53,12 +53,12 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className={`bg-[#1a1a24] border rounded-xl shadow-xl min-w-[280px] max-w-[320px] transition-all duration-150 ${
-        selected ? 'border-[#a855f7]' : 'border-[#2a2a35]'
+      className={`bg-[#212126] border rounded-xl shadow-xl min-w-[280px] max-w-[320px] transition-all duration-150 ${
+        selected ? 'border-[#a855f7]' : 'border-[#343438]'
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a35]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#343438]">
         <span className="text-sm font-medium text-white">{nodeData.label}</span>
         <button
           onClick={handleDelete}
@@ -83,7 +83,7 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
             <img
               src={nodeData.imageUrl}
               alt={nodeData.fileName || 'Uploaded image'}
-              className="w-full h-32 object-cover rounded-lg border border-[#3a3a45]"
+              className="w-full h-32 object-cover rounded-lg border border-[#343438]"
             />
             <button
               onClick={handleRemoveImage}
@@ -96,7 +96,7 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
         ) : (
           <button
             onClick={handleUploadClick}
-            className="w-full h-32 flex flex-col items-center justify-center gap-2 border border-dashed border-[#3a3a45] rounded-lg hover:border-[#a855f7] hover:bg-[#a855f7]/5 transition-colors"
+            className="w-full h-32 flex flex-col items-center justify-center gap-2 border border-dashed border-[#343438] rounded-lg hover:border-[#a855f7] hover:bg-[#a855f7]/5 transition-colors"
           >
             <Upload className="w-6 h-6 text-[#666666]" />
             <span className="text-xs text-[#666666]">Click to upload</span>

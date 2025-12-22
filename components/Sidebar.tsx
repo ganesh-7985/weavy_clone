@@ -3,16 +3,16 @@
 import { useState, useCallback } from 'react';
 import {
   Type,
-  Image as ImageIcon,
   Sparkles,
   Search,
   History,
   Briefcase,
-  Box,
   FileText,
   HelpCircle,
-  Download,
-  Upload,
+  ChevronsRight,
+  FileImage,
+  Video,
+  Wand2,
 } from 'lucide-react';
 import { useWorkflowStore } from '@/store/workflowStore';
 
@@ -30,10 +30,13 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     addTextNode,
     addImageNode,
     addLLMNode,
+    addPromptConcatenatorNode,
+    addImageDescriberNode,
     setWorkflowName,
+    nodes,
   } = useWorkflowStore();
 
-  const [activePanel, setActivePanel] = useState<'none' | 'search' | 'recent'>('none');
+  const [activePanel, setActivePanel] = useState<'none' | 'search' | 'recent' | 'tools'>('none');
   const [activeTab, setActiveTab] = useState<'recent' | 'toolbox'>('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -64,9 +67,15 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
         case 'llm':
           addLLMNode(position);
           break;
+        case 'promptConcatenator':
+          addPromptConcatenatorNode(position);
+          break;
+        case 'imageDescriber':
+          addImageDescriberNode(position);
+          break;
       }
     },
-    [addTextNode, addImageNode, addLLMNode]
+    [addTextNode, addImageNode, addLLMNode, addPromptConcatenatorNode, addImageDescriberNode]
   );
 
   const toggleSearchPanel = () => {
@@ -75,6 +84,10 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
 
   const toggleRecentPanel = () => {
     setActivePanel(activePanel === 'recent' ? 'none' : 'recent');
+  };
+
+  const toggleToolsPanel = () => {
+    setActivePanel(activePanel === 'tools' ? 'none' : 'tools');
   };
 
   const handleNameSave = () => {
@@ -97,8 +110,8 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
 
   // Quick access items - exactly 3 buttons
   const quickAccessItems = [
-    { type: 'text', label: 'Text Node', icon: Type },
-    { type: 'image', label: 'Image Node', icon: ImageIcon },
+    { type: 'text', label: 'Prompt', icon: Type },
+    { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight },
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles },
   ];
 
@@ -106,12 +119,35 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
   const sidebarIcons = [
     { icon: Search, action: toggleSearchPanel, label: 'Search', isActive: activePanel === 'search' },
     { icon: History, action: toggleRecentPanel, label: 'Quick Access', isActive: activePanel === 'recent' },
+    { icon: Briefcase, action: toggleToolsPanel, label: 'Tools', isActive: activePanel === 'tools' },
   ];
+
+  // Tools list for the Tools panel - matching reference image
+  const toolsList = [
+    { type: 'text', label: 'Prompt', icon: Type, description: 'Text prompt input' },
+    { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight, description: 'Combine multiple prompts' },
+    { type: 'promptEnhancer', label: 'Prompt Enhancer', icon: Wand2, description: 'Enhance prompts with AI' },
+    { type: 'llm', label: 'Run Any LLM', icon: Sparkles, description: 'Run AI models' },
+    { type: 'imageDescriber', label: 'Image Describer', icon: FileImage, description: 'Describe images with AI' },
+    { type: 'videoDescriber', label: 'Video Describer', icon: Video, description: 'Describe videos with AI' },
+  ];
+
+  // Filter tools based on search
+  const filteredTools = toolsList.filter(tool =>
+    tool.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter nodes based on search
+  const filteredNodes = nodes.filter(node => {
+    const label = (node.data as { label?: string }).label || '';
+    return label.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className="flex h-full">
       {/* Icon Sidebar - Always visible */}
-      <div className="w-14 h-full bg-[#121212] border-r border-[rgba(255,255,255,0.12)] flex flex-col items-center py-3">
+      <div className="w-14 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col items-center py-3">
         {/* Logo - Click to go back to projects */}
         <button 
           onClick={onBackToProjects}
@@ -174,8 +210,8 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
 
       {/* Expanded Panel  */}
       {activePanel === 'search' && (
-        <div className="w-60 h-full bg-[#121212] border-l border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
-          {/* Workflow Name Header /}
+        <div className="w-60 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
+          {/* Workflow Name Header */}
           <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
             {isEditingName ? (
               <input
@@ -210,21 +246,62 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
                 autoFocus
-                className="w-full pl-9 pr-3 py-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-[#353539] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
               />
             </div>
           </div>
 
           {/* Search Results */}
           <div className="px-4 flex-1 overflow-y-auto">
-            <p className="text-xs text-[rgba(255,255,255,0.4)]">Type to search nodes...</p>
+            {searchQuery ? (
+              <>
+                {filteredNodes.length > 0 ? (
+                  <div className="space-y-2">
+                    <h4 className="text-xs text-[rgba(255,255,255,0.4)] mb-2">Nodes ({filteredNodes.length})</h4>
+                    {filteredNodes.map((node) => (
+                      <div
+                        key={node.id}
+                        className="p-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white"
+                      >
+                        {(node.data as { label?: string }).label || node.type}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-[rgba(255,255,255,0.4)]">No nodes found</p>
+                )}
+                {filteredTools.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <h4 className="text-xs text-[rgba(255,255,255,0.4)] mb-2">Tools ({filteredTools.length})</h4>
+                    {filteredTools.map((tool) => (
+                      <div
+                        key={tool.type}
+                        onClick={() => {
+                          if (tool.type === 'export') {
+                            onExport();
+                          } else {
+                            handleAddNode(tool.type);
+                          }
+                        }}
+                        className="flex items-center gap-2 p-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg hover:border-[rgba(255,255,255,0.2)] cursor-pointer transition-all"
+                      >
+                        <tool.icon className="w-4 h-4 text-[rgba(255,255,255,0.6)]" />
+                        <span className="text-xs text-white">{tool.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-[rgba(255,255,255,0.4)]">Type to search nodes and tools...</p>
+            )}
           </div>
         </div>
       )}
 
       {/* Expanded Panel - Quick Access / Toolbox */}
       {activePanel === 'recent' && (
-        <div className="w-60 h-full bg-[#121212] border-l border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
+        <div className="w-60 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
           {/* Workflow Name Header - Editable */}
           <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
             {isEditingName ? (
@@ -259,7 +336,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
-                className="w-full pl-9 pr-3 py-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
+                className="w-full pl-9 pr-3 py-2 bg-[#353539] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
               />
             </div>
           </div>
@@ -273,12 +350,54 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
                   key={item.type}
                   draggable
                   onDragStart={(e) => handleDragStart(e, item.type)}
-                  onClick={() => handleAddNode(item.type)}
-                  className="flex flex-col items-center gap-2 p-3 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.08)] cursor-grab active:cursor-grabbing transition-all group"
+                  className="flex flex-col items-center gap-2 p-3 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group"
                 >
                   <item.icon className="w-5 h-5 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
                   <span className="text-[11px] text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">
                     {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Expanded Panel - Tools */}
+      {activePanel === 'tools' && (
+        <div className="w-60 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
+            <span className="text-sm text-[#f6ffa8] font-medium">Text tools</span>
+          </div>
+
+          {/* Search Input */}
+          <div className="px-4 py-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[rgba(255,255,255,0.4)]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search tools"
+                className="w-full pl-9 pr-3 py-2 bg-[#353539] border border-[rgba(255,255,255,0.12)] rounded-lg text-xs text-white placeholder-[rgba(255,255,255,0.4)] focus:outline-none focus:border-[rgba(255,255,255,0.2)] transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Tools Grid */}
+          <div className="px-4 pb-3 flex-1 overflow-y-auto">
+            <div className="grid grid-cols-2 gap-2">
+              {toolsList.map((tool) => (
+                <div
+                  key={tool.type}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, tool.type)}
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group min-h-[100px]"
+                >
+                  <tool.icon className="w-6 h-6 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
+                  <span className="text-xs text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">
+                    {tool.label}
                   </span>
                 </div>
               ))}

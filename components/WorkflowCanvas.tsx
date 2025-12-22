@@ -11,7 +11,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { MousePointer2, Hand, Undo2, Redo2, ChevronDown } from 'lucide-react';
 
-import { TextNode, ImageNode, LLMNode, PromptNode, FileNode } from '@/components/nodes';
+import { TextNode, ImageNode, LLMNode, PromptNode, FileNode, PromptConcatenatorNode, ImageDescriberNode, PromptEnhancerNode, VideoDescriberNode } from '@/components/nodes';
 import { useWorkflowStore } from '@/store/workflowStore';
 
 const nodeTypes = {
@@ -20,6 +20,10 @@ const nodeTypes = {
   llm: LLMNode,
   prompt: PromptNode,
   file: FileNode,
+  promptConcatenator: PromptConcatenatorNode,
+  imageDescriber: ImageDescriberNode,
+  promptEnhancer: PromptEnhancerNode,
+  videoDescriber: VideoDescriberNode,
 };
 
 function WorkflowCanvasInner() {
@@ -40,6 +44,11 @@ function WorkflowCanvasInner() {
     addLLMNode,
     addTextNode,
     addImageNode,
+    addPromptConcatenatorNode,
+    addImageDescriberNode,
+    addPromptEnhancerNode,
+    addVideoDescriberNode,
+    setSelectedLLMNode,
   } = useWorkflowStore();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -47,6 +56,11 @@ function WorkflowCanvasInner() {
   const isInitialized = useRef(false);
   const [tool, setTool] = useState<'select' | 'pan'>('select');
   const [zoom, setZoom] = useState(100);
+
+  // Close LLM settings sidebar when clicking on pane (not on a node)
+  const onPaneClick = useCallback(() => {
+    setSelectedLLMNode(null);
+  }, [setSelectedLLMNode]);
 
   // Update zoom display
   useEffect(() => {
@@ -56,15 +70,16 @@ function WorkflowCanvasInner() {
     return () => clearInterval(interval);
   }, [getZoom]);
 
-  // Fit view on initial load
+  // Set initial zoom to 50% on load
   useEffect(() => {
-    if (nodes.length > 0 && !isInitialized.current) {
+    if (!isInitialized.current) {
       setTimeout(() => {
-        fitView({ padding: 0.2 });
+        // Set default zoom to 50%
+        setZoom(50);
         isInitialized.current = true;
       }, 100);
     }
-  }, [nodes.length, fitView]);
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -139,9 +154,21 @@ function WorkflowCanvasInner() {
         case 'image':
           addImageNode(position);
           break;
+        case 'promptConcatenator':
+          addPromptConcatenatorNode(position);
+          break;
+        case 'imageDescriber':
+          addImageDescriberNode(position);
+          break;
+        case 'promptEnhancer':
+          addPromptEnhancerNode(position);
+          break;
+        case 'videoDescriber':
+          addVideoDescriberNode(position);
+          break;
       }
     },
-    [screenToFlowPosition, addPromptNode, addFileNode, addLLMNode, addTextNode, addImageNode]
+    [screenToFlowPosition, addPromptNode, addFileNode, addLLMNode, addTextNode, addImageNode, addPromptConcatenatorNode, addImageDescriberNode, addPromptEnhancerNode, addVideoDescriberNode]
   );
 
   return (
@@ -153,9 +180,9 @@ function WorkflowCanvasInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeDragStop={handleNodeDragStop}
+        onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
+        defaultViewport={{ x: 200, y: 100, zoom: 0.5 }}
         defaultEdgeOptions={{
           animated: true,
           style: { stroke: '#a855f7', strokeWidth: 2 },
@@ -169,7 +196,7 @@ function WorkflowCanvasInner() {
         selectionOnDrag={tool === 'select'}
         minZoom={0.1}
         maxZoom={2}
-        className="bg-[#0d0d12]"
+        className="bg-[#18181b]"
       >
         <Background
           variant={BackgroundVariant.Dots}
@@ -180,7 +207,7 @@ function WorkflowCanvasInner() {
       </ReactFlow>
 
       {/* Floating Bottom Toolbar - Weavy Style */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1.5 bg-[#1e1e1e] border border-[#333333] rounded-lg shadow-xl">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1.5 bg-[#212126] border border-[#353539] rounded-lg shadow-xl">
         {/* Select Tool */}
         <button
           onClick={() => setTool('select')}

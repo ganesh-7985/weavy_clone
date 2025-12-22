@@ -4,8 +4,14 @@ import { memo, useCallback, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Loader2, Plus } from 'lucide-react';
 import { NodeMenu } from './NodeMenu';
-import { LLMNodeData, TextNodeData, ImageNodeData, WorkflowNode } from '@/types';
 import { useWorkflowStore } from '@/store/workflowStore';
+
+interface PromptEnhancerNodeData extends Record<string, unknown> {
+  label: string;
+  output: string;
+  isLoading: boolean;
+  error: string | null;
+}
 
 interface HandleLabelProps {
   label: string;
@@ -32,60 +38,56 @@ function HandleLabel({ label, color, position, required, visible }: HandleLabelP
   );
 }
 
-function LLMNodeComponent({ id, data, selected }: NodeProps) {
-  const nodeData = data as LLMNodeData;
-  const { updateNodeData, deleteNode, edges, nodes, setSelectedLLMNode } = useWorkflowStore();
-  const [imageInputCount, setImageInputCount] = useState(1);
+function PromptEnhancerNodeComponent({ id, data, selected }: NodeProps) {
+  const nodeData = data as PromptEnhancerNodeData;
+  const { updateNodeData, deleteNode, edges, nodes } = useWorkflowStore();
   const [isHovered, setIsHovered] = useState(false);
+  const [imageInputCount, setImageInputCount] = useState(1);
 
-  const getConnectedInputs = useCallback(() => {
+  const handleAddImageInput = useCallback(() => {
+    setImageInputCount((prev) => prev + 1);
+  }, []);
+
+  const getConnectedPrompts = useCallback(() => {
     const incomingEdges = edges.filter((edge) => edge.target === id);
-    const textInputs: string[] = [];
-    const imageInputs: { base64: string; mimeType: string }[] = [];
+    const prompts: string[] = [];
 
     for (const edge of incomingEdges) {
-      const sourceNode = nodes.find((node) => node.id === edge.source) as WorkflowNode | undefined;
+      const sourceNode = nodes.find((node) => node.id === edge.source);
       if (!sourceNode) continue;
 
-      if (sourceNode.type === 'text') {
-        const textData = sourceNode.data as TextNodeData;
+      if (sourceNode.type === 'text' || sourceNode.type === 'prompt') {
+        const textData = sourceNode.data as { text?: string };
         if (textData.text) {
-          textInputs.push(textData.text);
-        }
-      } else if (sourceNode.type === 'image') {
-        const imageData = sourceNode.data as ImageNodeData;
-        if (imageData.imageBase64) {
-          imageInputs.push({
-            base64: imageData.imageBase64,
-            mimeType: 'image/jpeg',
-          });
+          prompts.push(textData.text);
         }
       }
     }
 
-    return { textInputs, imageInputs };
+    return prompts;
   }, [edges, nodes, id]);
 
   const handleRun = useCallback(async () => {
     updateNodeData(id, { isLoading: true, error: null, output: '' });
 
     try {
-      const { textInputs, imageInputs } = getConnectedInputs();
+      const prompts = getConnectedPrompts();
       
-      let fullPrompt = nodeData.userPrompt || 'Describe the input';
-      if (textInputs.length > 0) {
-        fullPrompt = textInputs.join('\n\n');
+      if (prompts.length === 0) {
+        updateNodeData(id, { 
+          error: 'Please connect at least one prompt node', 
+          isLoading: false 
+        });
+        return;
       }
 
       const response = await fetch('/api/llm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: nodeData.model,
-          systemPrompt: nodeData.systemPrompt || undefined,
-          userPrompt: fullPrompt,
-          images: imageInputs.length > 0 ? imageInputs : undefined,
-          temperature: nodeData.temperature,
+          model: 'gemini-2.0-flash',
+          systemPrompt: 'You are a prompt enhancement expert. Take the given prompt and enhance it to be more detailed, specific, and effective for AI image generation or text generation. Keep the core idea but make it more descriptive and creative.',
+          userPrompt: `Please enhance this prompt:\n\n${prompts.join('\n\n')}`,
         }),
       });
 
@@ -102,24 +104,15 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
         isLoading: false,
       });
     }
-  }, [id, nodeData, updateNodeData, getConnectedInputs]);
-
-  const handleAddImageInput = useCallback(() => {
-    setImageInputCount((prev) => prev + 1);
-  }, []);
-
-  const handleNodeClick = useCallback(() => {
-    setSelectedLLMNode(id);
-  }, [id, setSelectedLLMNode]);
+  }, [id, updateNodeData, getConnectedPrompts]);
 
   return (
     <div
-      onClick={handleNodeClick}
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[380px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[400px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Prompt Handle */}
+      {/* Prompt Input Handle */}
       <div
         className="group absolute"
         style={{ left: -12, top: 60 }}
@@ -134,27 +127,12 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
         <HandleLabel label="Prompt" color="#f1a0fa" position="left" required visible={isHovered} />
       </div>
 
-      {/* System Prompt Handle */}
-      <div
-        className="group absolute"
-        style={{ left: -12, top: 100 }}
-      >
-        <Handle
-          type="target"
-          position={Position.Left}
-          id="system-prompt"
-          className="!w-4 !h-4 !bg-[#f1a0fa] !border-4 !border-[#1a1a1f] !rounded-full"
-          style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
-        />
-        <HandleLabel label="System" color="#f1a0fa" position="left" visible={isHovered} />
-      </div>
-
       {/* Image Handles */}
       {Array.from({ length: imageInputCount }).map((_, index) => (
         <div
           key={`image-${index}`}
           className="group absolute"
-          style={{ left: -12, top: 140 + index * 40 }}
+          style={{ left: -12, top: 100 + index * 40 }}
         >
           <Handle
             type="target"
@@ -169,11 +147,11 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm font-medium text-white">Any LLM</span>
+        <span className="text-sm font-medium text-white">Prompt Enhancer</span>
         <NodeMenu
           nodeId={id}
-          nodeName="Any LLM"
-          nodeDescription="Run AI models"
+          nodeName="Prompt Enhancer"
+          nodeDescription="Enhance prompts with AI"
           onDuplicate={() => {}}
           onRename={() => {}}
           onDelete={() => deleteNode(id)}
@@ -244,4 +222,4 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
   );
 }
 
-export const LLMNode = memo(LLMNodeComponent);
+export const PromptEnhancerNode = memo(PromptEnhancerNodeComponent);

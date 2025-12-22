@@ -4,6 +4,7 @@ import { useCallback, useRef, useEffect, useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { WorkflowCanvas } from '@/components/WorkflowCanvas';
 import { ProjectsPage } from '@/components/ProjectsPage';
+import { LLMSettingsSidebar } from '@/components/LLMSettingsSidebar';
 import { useWorkflowStore } from '@/store/workflowStore';
 import { createProductListingGeneratorWorkflow } from '@/lib/templates';
 import {
@@ -24,7 +25,7 @@ interface Toast {
 }
 
 export default function Home() {
-  const { saveWorkflow, loadWorkflow, clearWorkflow, workflowName } = useWorkflowStore();
+  const { saveWorkflow, loadWorkflow, clearWorkflow, workflowName, selectedLLMNodeId } = useWorkflowStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -248,6 +249,9 @@ export default function Home() {
 
       {/* Canvas - Full Screen */}
       <WorkflowCanvas />
+
+      {/* Right Sidebar - LLM Settings */}
+      {selectedLLMNodeId && <LLMSettingsSidebar />}
 
       {/* Toast Notifications */}
       <div className="fixed bottom-16 right-4 z-50 flex flex-col gap-2">

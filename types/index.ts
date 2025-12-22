@@ -47,6 +47,36 @@ export interface LLMNodeData extends Record<string, unknown> {
   output: string;
   isLoading: boolean;
   error: string | null;
+  temperature: number;
+  thinking: boolean;
+}
+
+export interface PromptConcatenatorNodeData extends Record<string, unknown> {
+  label: string;
+  texts: string[];
+}
+
+export interface ImageDescriberNodeData extends Record<string, unknown> {
+  label: string;
+  output: string;
+  isLoading: boolean;
+  error: string | null;
+  imageInputCount: number;
+}
+
+export interface PromptEnhancerNodeData extends Record<string, unknown> {
+  label: string;
+  output: string;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface VideoDescriberNodeData extends Record<string, unknown> {
+  label: string;
+  output: string;
+  isLoading: boolean;
+  error: string | null;
+  videoInputCount: number;
 }
 
 // Node Types
@@ -58,8 +88,12 @@ export type TextModelNode = Node<TextModelNodeData, 'textModel'>;
 export type TextNode = Node<TextNodeData, 'text'>;
 export type ImageNode = Node<ImageNodeData, 'image'>;
 export type LLMNode = Node<LLMNodeData, 'llm'>;
+export type PromptConcatenatorNode = Node<PromptConcatenatorNodeData, 'promptConcatenator'>;
+export type ImageDescriberNode = Node<ImageDescriberNodeData, 'imageDescriber'>;
+export type PromptEnhancerNode = Node<PromptEnhancerNodeData, 'promptEnhancer'>;
+export type VideoDescriberNode = Node<VideoDescriberNodeData, 'videoDescriber'>;
 
-export type WorkflowNode = PromptNode | FileNode | TextModelNode | TextNode | ImageNode | LLMNode;
+export type WorkflowNode = PromptNode | FileNode | TextModelNode | TextNode | ImageNode | LLMNode | PromptConcatenatorNode | ImageDescriberNode | PromptEnhancerNode | VideoDescriberNode;
 export type WorkflowEdge = Edge;
 
 // Gemini Models (Text)

@@ -44,12 +44,14 @@ export function createProductListingGeneratorWorkflow(): Workflow {
       position: { x: 400, y: 120 },
       data: {
         label: 'Analyze product',
-        model: 'gemini-2.5-flash' as GeminiModel,
+        model: 'gemini-2.0-flash' as GeminiModel,
         systemPrompt: 'You are a product analyst. Analyze products and extract key selling points, target audience, and unique value propositions.',
         userPrompt: 'Analyze this product and provide:\n1. Key selling points\n2. Target audience\n3. Unique value proposition\n4. Emotional benefits\n5. Competitive advantages',
         output: '',
         isLoading: false,
         error: null,
+        temperature: 0,
+        thinking: false,
       },
     },
     // LLM Node - Write Amazon listing
@@ -59,12 +61,14 @@ export function createProductListingGeneratorWorkflow(): Workflow {
       position: { x: 200, y: 420 },
       data: {
         label: 'Write Amazon listing',
-        model: 'gemini-2.5-flash' as GeminiModel,
+        model: 'gemini-2.0-flash' as GeminiModel,
         systemPrompt: 'You are an Amazon listing expert. Create compelling, keyword-rich product listings optimized for Amazon search.',
         userPrompt: 'Based on the product analysis, write an Amazon product listing with:\n- SEO-optimized title (under 200 chars)\n- 5 bullet points highlighting key features\n- Product description (HTML formatted)',
         output: '',
         isLoading: false,
         error: null,
+        temperature: 0,
+        thinking: false,
       },
     },
     // LLM Node - Write Instagram caption
@@ -74,12 +78,14 @@ export function createProductListingGeneratorWorkflow(): Workflow {
       position: { x: 550, y: 420 },
       data: {
         label: 'Write Instagram caption',
-        model: 'gemini-2.5-flash' as GeminiModel,
+        model: 'gemini-2.0-flash' as GeminiModel,
         systemPrompt: 'You are a social media expert specializing in Instagram marketing. Create engaging, viral-worthy captions.',
         userPrompt: 'Based on the product analysis, write an engaging Instagram caption with:\n- Hook in first line\n- Benefits and lifestyle appeal\n- Call-to-action\n- Relevant hashtags (10-15)',
         output: '',
         isLoading: false,
         error: null,
+        temperature: 0,
+        thinking: false,
       },
     },
     // LLM Node - Write SEO meta description
@@ -89,12 +95,14 @@ export function createProductListingGeneratorWorkflow(): Workflow {
       position: { x: 900, y: 420 },
       data: {
         label: 'Write SEO meta description',
-        model: 'gemini-2.5-flash' as GeminiModel,
+        model: 'gemini-2.0-flash' as GeminiModel,
         systemPrompt: 'You are an SEO specialist. Create concise, compelling meta descriptions that drive clicks.',
         userPrompt: 'Based on the product analysis, write:\n- Meta title (under 60 chars)\n- Meta description (under 160 chars)\n- 5 focus keywords\n- Schema markup suggestion',
         output: '',
         isLoading: false,
         error: null,
+        temperature: 0,
+        thinking: false,
       },
     },
   ];

@@ -4,8 +4,16 @@ import { memo, useCallback, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Loader2, Plus } from 'lucide-react';
 import { NodeMenu } from './NodeMenu';
-import { LLMNodeData, TextNodeData, ImageNodeData, WorkflowNode } from '@/types';
 import { useWorkflowStore } from '@/store/workflowStore';
+import { ImageNodeData, WorkflowNode } from '@/types';
+
+interface ImageDescriberNodeData extends Record<string, unknown> {
+  label: string;
+  output: string;
+  isLoading: boolean;
+  error: string | null;
+  imageInputCount: number;
+}
 
 interface HandleLabelProps {
   label: string;
@@ -32,27 +40,27 @@ function HandleLabel({ label, color, position, required, visible }: HandleLabelP
   );
 }
 
-function LLMNodeComponent({ id, data, selected }: NodeProps) {
-  const nodeData = data as LLMNodeData;
-  const { updateNodeData, deleteNode, edges, nodes, setSelectedLLMNode } = useWorkflowStore();
-  const [imageInputCount, setImageInputCount] = useState(1);
+function ImageDescriberNodeComponent({ id, data, selected }: NodeProps) {
+  const nodeData = data as ImageDescriberNodeData;
+  const { updateNodeData, deleteNode, edges, nodes } = useWorkflowStore();
+  const [imageInputCount, setImageInputCount] = useState(nodeData.imageInputCount || 1);
   const [isHovered, setIsHovered] = useState(false);
 
-  const getConnectedInputs = useCallback(() => {
+  const handleAddImageInput = useCallback(() => {
+    const newCount = imageInputCount + 1;
+    setImageInputCount(newCount);
+    updateNodeData(id, { imageInputCount: newCount });
+  }, [id, updateNodeData, imageInputCount]);
+
+  const getConnectedImages = useCallback(() => {
     const incomingEdges = edges.filter((edge) => edge.target === id);
-    const textInputs: string[] = [];
     const imageInputs: { base64: string; mimeType: string }[] = [];
 
     for (const edge of incomingEdges) {
       const sourceNode = nodes.find((node) => node.id === edge.source) as WorkflowNode | undefined;
       if (!sourceNode) continue;
 
-      if (sourceNode.type === 'text') {
-        const textData = sourceNode.data as TextNodeData;
-        if (textData.text) {
-          textInputs.push(textData.text);
-        }
-      } else if (sourceNode.type === 'image') {
+      if (sourceNode.type === 'image') {
         const imageData = sourceNode.data as ImageNodeData;
         if (imageData.imageBase64) {
           imageInputs.push({
@@ -63,29 +71,31 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       }
     }
 
-    return { textInputs, imageInputs };
+    return imageInputs;
   }, [edges, nodes, id]);
 
   const handleRun = useCallback(async () => {
     updateNodeData(id, { isLoading: true, error: null, output: '' });
 
     try {
-      const { textInputs, imageInputs } = getConnectedInputs();
+      const images = getConnectedImages();
       
-      let fullPrompt = nodeData.userPrompt || 'Describe the input';
-      if (textInputs.length > 0) {
-        fullPrompt = textInputs.join('\n\n');
+      if (images.length === 0) {
+        updateNodeData(id, { 
+          error: 'Please connect at least one image node', 
+          isLoading: false 
+        });
+        return;
       }
 
       const response = await fetch('/api/llm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: nodeData.model,
-          systemPrompt: nodeData.systemPrompt || undefined,
-          userPrompt: fullPrompt,
-          images: imageInputs.length > 0 ? imageInputs : undefined,
-          temperature: nodeData.temperature,
+          model: 'gemini-2.5-flash',
+          systemPrompt: 'You are an image description expert. Describe the image(s) in detail.',
+          userPrompt: 'Please describe this image in detail. Include information about objects, colors, composition, and any notable elements.',
+          images,
         }),
       });
 
@@ -102,59 +112,20 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
         isLoading: false,
       });
     }
-  }, [id, nodeData, updateNodeData, getConnectedInputs]);
-
-  const handleAddImageInput = useCallback(() => {
-    setImageInputCount((prev) => prev + 1);
-  }, []);
-
-  const handleNodeClick = useCallback(() => {
-    setSelectedLLMNode(id);
-  }, [id, setSelectedLLMNode]);
+  }, [id, updateNodeData, getConnectedImages]);
 
   return (
     <div
-      onClick={handleNodeClick}
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[380px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[400px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Prompt Handle */}
-      <div
-        className="group absolute"
-        style={{ left: -12, top: 60 }}
-      >
-        <Handle
-          type="target"
-          position={Position.Left}
-          id="prompt"
-          className="!w-4 !h-4 !bg-[#f1a0fa] !border-4 !border-[#1a1a1f] !rounded-full"
-          style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
-        />
-        <HandleLabel label="Prompt" color="#f1a0fa" position="left" required visible={isHovered} />
-      </div>
-
-      {/* System Prompt Handle */}
-      <div
-        className="group absolute"
-        style={{ left: -12, top: 100 }}
-      >
-        <Handle
-          type="target"
-          position={Position.Left}
-          id="system-prompt"
-          className="!w-4 !h-4 !bg-[#f1a0fa] !border-4 !border-[#1a1a1f] !rounded-full"
-          style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
-        />
-        <HandleLabel label="System" color="#f1a0fa" position="left" visible={isHovered} />
-      </div>
-
-      {/* Image Handles */}
+      {/* Image Input Handles */}
       {Array.from({ length: imageInputCount }).map((_, index) => (
         <div
           key={`image-${index}`}
           className="group absolute"
-          style={{ left: -12, top: 140 + index * 40 }}
+          style={{ left: -12, top: 90 + index * 40 }}
         >
           <Handle
             type="target"
@@ -163,17 +134,17 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
             className="!w-4 !h-4 !bg-[#6eddb3] !border-4 !border-[#1a1a1f] !rounded-full"
             style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
           />
-          <HandleLabel label={`Image ${index + 1}`} color="#6eddb3" position="left" visible={isHovered} />
+          <HandleLabel label={`Image ${index + 1}`} color="#6eddb3" position="left" required={index === 0} visible={isHovered} />
         </div>
       ))}
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm font-medium text-white">Any LLM</span>
+        <span className="text-sm font-medium text-white">Image Describer</span>
         <NodeMenu
           nodeId={id}
-          nodeName="Any LLM"
-          nodeDescription="Run AI models"
+          nodeName="Image Describer"
+          nodeDescription="Describes an image"
           onDuplicate={() => {}}
           onRename={() => {}}
           onDelete={() => deleteNode(id)}
@@ -184,7 +155,7 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       <div className="px-4 pb-4">
         {/* Output Area */}
         <div
-          className={`w-full h-[240px] px-3 py-3 rounded-lg text-sm overflow-y-auto ${
+          className={`w-full h-[280px] px-3 py-3 rounded-lg text-sm overflow-y-auto ${
             nodeData.error
               ? 'bg-red-500/10 border border-red-500/30 text-red-400'
               : 'bg-[#353539] border border-[#3a3a45] text-[#555555]'
@@ -229,7 +200,7 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       {/* Output Handle */}
       <div
         className="group absolute"
-        style={{ right: -12, top: 60 }}
+        style={{ right: -12, top: 90 }}
       >
         <Handle
           type="source"
@@ -244,4 +215,4 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
   );
 }
 
-export const LLMNode = memo(LLMNodeComponent);
+export const ImageDescriberNode = memo(ImageDescriberNodeComponent);

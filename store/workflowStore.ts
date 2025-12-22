@@ -16,6 +16,8 @@ import {
   LLMNodeData,
   PromptNodeData,
   FileNodeData,
+  PromptConcatenatorNodeData,
+  ImageDescriberNodeData,
   HistoryState,
   Workflow,
   GeminiModel
@@ -36,6 +38,7 @@ interface WorkflowState {
   
   // Sidebar state
   isSidebarCollapsed: boolean;
+  selectedLLMNodeId: string | null;
   
   // Actions
   setNodes: (nodes: WorkflowNode[]) => void;
@@ -50,7 +53,11 @@ interface WorkflowState {
   addLLMNode: (position: { x: number; y: number }) => void;
   addPromptNode: (position: { x: number; y: number }) => void;
   addFileNode: (position: { x: number; y: number }) => void;
-  updateNodeData: (nodeId: string, data: Partial<TextNodeData | ImageNodeData | LLMNodeData | PromptNodeData | FileNodeData>) => void;
+  addPromptConcatenatorNode: (position: { x: number; y: number }) => void;
+  addImageDescriberNode: (position: { x: number; y: number }) => void;
+  addPromptEnhancerNode: (position: { x: number; y: number }) => void;
+  addVideoDescriberNode: (position: { x: number; y: number }) => void;
+  updateNodeData: (nodeId: string, data: Partial<TextNodeData | ImageNodeData | LLMNodeData | PromptNodeData | FileNodeData | PromptConcatenatorNodeData | ImageDescriberNodeData>) => void;
   deleteNode: (nodeId: string) => void;
   
   // History operations
@@ -62,6 +69,7 @@ interface WorkflowState {
   
   // Sidebar
   toggleSidebar: () => void;
+  setSelectedLLMNode: (nodeId: string | null) => void;
   
   // Workflow operations
   saveWorkflow: () => Workflow;
@@ -78,6 +86,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   history: [],
   historyIndex: -1,
   isSidebarCollapsed: false,
+  selectedLLMNodeId: null,
   
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
@@ -146,12 +155,14 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       position,
       data: {
         label: 'Run Any LLM',
-        model: 'gemini-2.5-flash' as GeminiModel,
+        model: 'gemini-2.0-flash' as GeminiModel,
         systemPrompt: '',
         userPrompt: '',
         output: '',
         isLoading: false,
         error: null,
+        temperature: 0,
+        thinking: false,
       } as LLMNodeData,
     };
     set({ nodes: [...get().nodes, newNode] });
@@ -185,6 +196,70 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         fileType: null,
         linkUrl: null,
       } as FileNodeData,
+    };
+    set({ nodes: [...get().nodes, newNode] });
+    get().saveToHistory();
+  },
+  
+  addPromptConcatenatorNode: (position) => {
+    const newNode: WorkflowNode = {
+      id: uuidv4(),
+      type: 'promptConcatenator',
+      position,
+      data: {
+        label: 'Prompt Concatenator',
+        texts: ['', ''],
+      } as PromptConcatenatorNodeData,
+    };
+    set({ nodes: [...get().nodes, newNode] });
+    get().saveToHistory();
+  },
+  
+  addImageDescriberNode: (position) => {
+    const newNode: WorkflowNode = {
+      id: uuidv4(),
+      type: 'imageDescriber',
+      position,
+      data: {
+        label: 'Image Describer',
+        output: '',
+        isLoading: false,
+        error: null,
+        imageInputCount: 1,
+      } as ImageDescriberNodeData,
+    };
+    set({ nodes: [...get().nodes, newNode] });
+    get().saveToHistory();
+  },
+  
+  addPromptEnhancerNode: (position) => {
+    const newNode: WorkflowNode = {
+      id: uuidv4(),
+      type: 'promptEnhancer',
+      position,
+      data: {
+        label: 'Prompt Enhancer',
+        output: '',
+        isLoading: false,
+        error: null,
+      },
+    };
+    set({ nodes: [...get().nodes, newNode] });
+    get().saveToHistory();
+  },
+  
+  addVideoDescriberNode: (position) => {
+    const newNode: WorkflowNode = {
+      id: uuidv4(),
+      type: 'videoDescriber',
+      position,
+      data: {
+        label: 'Video Describer',
+        output: '',
+        isLoading: false,
+        error: null,
+        videoInputCount: 1,
+      },
     };
     set({ nodes: [...get().nodes, newNode] });
     get().saveToHistory();
@@ -253,6 +328,8 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   canRedo: () => get().historyIndex < get().history.length - 1,
   
   toggleSidebar: () => set({ isSidebarCollapsed: !get().isSidebarCollapsed }),
+  
+  setSelectedLLMNode: (nodeId) => set({ selectedLLMNodeId: nodeId }),
   
   saveWorkflow: () => {
     const { workflowId, workflowName, nodes, edges } = get();
