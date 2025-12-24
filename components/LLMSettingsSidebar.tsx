@@ -36,7 +36,7 @@ export function LLMSettingsSidebar() {
   const selectedModel = GEMINI_MODELS.find(m => m.value === nodeData.model);
 
   return (
-    <div className="w-72 h-full bg-[#121212] border-l border-[rgba(255,255,255,0.12)] flex flex-col">
+    <div className="w-72 h-full bg-[#212126] border-l border-[rgba(255,255,255,0.12)] flex flex-col">
       {/* Header */}
       <div className="px-4 py-4 border-b border-[rgba(255,255,255,0.12)]">
         <div className="flex items-center justify-between mb-1">

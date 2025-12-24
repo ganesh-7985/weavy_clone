@@ -56,9 +56,9 @@ export function NodeMenu({
         className="p-1 hover:bg-[#333340] rounded transition-colors"
       >
         <svg className="w-4 h-4 text-[#666666] hover:text-white" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="2" />
+          <circle cx="5" cy="12" r="2" />
           <circle cx="12" cy="12" r="2" />
-          <circle cx="12" cy="19" r="2" />
+          <circle cx="19" cy="12" r="2" />
         </svg>
       </button>
 

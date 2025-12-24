@@ -73,7 +73,7 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
             type="target"
             position={Position.Left}
             id={`prompt-${index + 1}`}
-            className="!w-4 !h-4 !bg-[#a855f7] !border-4 !border-[#1a1a1f] !rounded-full"
+            className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
             style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
           />
           {isHovered && <HandleLabel label={`Prompt ${index + 1}`} color="#a855f7" position="left" />}
@@ -136,7 +136,7 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-[#a855f7] !border-4 !border-[#1a1a1f] !rounded-full"
+          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
           style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
         {isHovered && <HandleLabel label="Prompt" color="#a855f7" position="right" />}

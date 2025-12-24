@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { WorkflowCanvas } from '@/components/WorkflowCanvas';
 import { ProjectsPage } from '@/components/ProjectsPage';
 import { LLMSettingsSidebar } from '@/components/LLMSettingsSidebar';
+import { ImageDescriberSettingsSidebar } from '@/components/ImageDescriberSettingsSidebar';
 import { useWorkflowStore } from '@/store/workflowStore';
 import { createProductListingGeneratorWorkflow } from '@/lib/templates';
 import {
@@ -25,7 +26,11 @@ interface Toast {
 }
 
 export default function Home() {
-  const { saveWorkflow, loadWorkflow, clearWorkflow, workflowName, selectedLLMNodeId } = useWorkflowStore();
+  const { saveWorkflow, loadWorkflow, clearWorkflow, workflowName, selectedLLMNodeId, selectedImageDescriberNodeId, nodes } = useWorkflowStore();
+  
+  // Determine node type for the selected describer node
+  const selectedDescriberNode = nodes.find(n => n.id === selectedImageDescriberNodeId);
+  const selectedDescriberNodeType = selectedDescriberNode?.type as 'imageDescriber' | 'promptEnhancer' | undefined;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -252,6 +257,14 @@ export default function Home() {
 
       {/* Right Sidebar - LLM Settings */}
       {selectedLLMNodeId && <LLMSettingsSidebar />}
+      
+      {/* Right Sidebar - ImageDescriber/PromptEnhancer Settings */}
+      {selectedImageDescriberNodeId && selectedDescriberNodeType && (
+        <ImageDescriberSettingsSidebar 
+          nodeId={selectedImageDescriberNodeId} 
+          nodeType={selectedDescriberNodeType} 
+        />
+      )}
 
       {/* Toast Notifications */}
       <div className="fixed bottom-16 right-4 z-50 flex flex-col gap-2">

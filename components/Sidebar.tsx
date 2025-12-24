@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Type,
   Sparkles,
@@ -13,6 +13,12 @@ import {
   FileImage,
   Video,
   Wand2,
+  ChevronRight,
+  Copy,
+  Share2,
+  Settings,
+  ArrowLeft,
+  Plus,
 } from 'lucide-react';
 import { useWorkflowStore } from '@/store/workflowStore';
 
@@ -41,6 +47,21 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(workflowName);
+  const [isLogoMenuOpen, setIsLogoMenuOpen] = useState(false);
+  const logoMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close logo menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (logoMenuRef.current && !logoMenuRef.current.contains(event.target as Node)) {
+        setIsLogoMenuOpen(false);
+      }
+    };
+    if (isLogoMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isLogoMenuOpen]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, nodeType: string) => {
@@ -108,11 +129,12 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     }
   };
 
-  // Quick access items - exactly 3 buttons
+  // Quick access items - 4 buttons including image
   const quickAccessItems = [
     { type: 'text', label: 'Prompt', icon: Type },
     { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight },
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles },
+    { type: 'image', label: 'File', icon: FileImage },
   ];
 
   // Icon sidebar items - matching Weavy's toolbar
@@ -148,22 +170,105 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     <div className="flex h-full">
       {/* Icon Sidebar - Always visible */}
       <div className="w-14 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col items-center py-3">
-        {/* Logo - Click to go back to projects */}
-        <button 
-          onClick={onBackToProjects}
-          className="mb-3 p-2 hover:bg-[rgba(255,255,255,0.08)] rounded-lg transition-colors"
-          title="Back to Projects"
-        >
-          <div className="flex items-center gap-1">
-            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-              <rect x="2" y="4" width="4" height="16" rx="1" />
-              <rect x="8" y="4" width="4" height="16" rx="1" />
-              <rect x="14" y="8" width="4" height="12" rx="1" />
-              <rect x="20" y="12" width="2" height="8" rx="0.5" />
-            </svg>
-            <span className="text-[10px] text-[#666666]">▾</span>
+
+      {/* Fixed Project Title - Always visible next to icon sidebar */}
+      {activePanel === 'none' && (
+        <div className="absolute left-14 top-0 h-14 flex items-center px-4 z-10">
+          <div 
+            onClick={() => {
+              setEditedName(workflowName);
+              setIsEditingName(true);
+            }}
+            className="bg-[#212126] border border-[rgba(255,255,255,0.12)] rounded-lg px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.08)] transition-colors min-w-[200px]"
+          >
+            {isEditingName ? (
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={handleNameSave}
+                onKeyDown={handleNameKeyDown}
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+                className="w-full bg-transparent text-sm text-white font-medium focus:outline-none"
+              />
+            ) : (
+              <span className="text-sm text-white font-medium">{workflowName}</span>
+            )}
           </div>
-        </button>
+        </div>
+      )}
+
+        {/* Logo - Click to show menu */}
+        <div className="relative" ref={logoMenuRef}>
+          <button 
+            onClick={() => setIsLogoMenuOpen(!isLogoMenuOpen)}
+            className="mb-3 p-2 hover:bg-[rgba(255,255,255,0.08)] rounded-lg transition-colors"
+            title="Menu"
+          >
+            <div className="flex items-center gap-1">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                <rect x="2" y="4" width="4" height="16" rx="1" />
+                <rect x="8" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="8" width="4" height="12" rx="1" />
+                <rect x="20" y="12" width="2" height="8" rx="0.5" />
+              </svg>
+              <span className="text-[10px] text-[#666666]">▾</span>
+            </div>
+          </button>
+
+          {/* Logo Dropdown Menu */}
+          {isLogoMenuOpen && (
+            <div className="absolute left-0 top-full mt-1 w-[240px] bg-[#212126] border border-[#353539] rounded-xl shadow-2xl z-50 overflow-hidden">
+              <div className="py-2">
+                <button
+                  onClick={() => { onBackToProjects?.(); setIsLogoMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#353539] transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#888888]" />
+                  Back to files
+                </button>
+              </div>
+              <div className="border-t border-[#353539] py-2">
+                <button
+                  onClick={() => { setIsLogoMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#353539] transition-colors"
+                >
+                  <Plus className="w-4 h-4 text-[#888888]" />
+                  Create new file
+                </button>
+                <button
+                  onClick={() => { setIsLogoMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#353539] transition-colors"
+                >
+                  <Copy className="w-4 h-4 text-[#888888]" />
+                  Duplicate file
+                </button>
+              </div>
+              <div className="border-t border-[#353539] py-2">
+                <button
+                  onClick={() => { setIsLogoMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#353539] transition-colors"
+                >
+                  <Share2 className="w-4 h-4 text-[#888888]" />
+                  Share file
+                </button>
+              </div>
+              <div className="border-t border-[#353539] py-2">
+                <button
+                  onClick={() => { setIsLogoMenuOpen(false); }}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm text-white hover:bg-[#353539] transition-colors"
+                >
+                  <span className="flex items-center gap-3">
+                    <Settings className="w-4 h-4 text-[#888888]" />
+                    Preferences
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-[#888888]" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Main Icons */}
         <div className="flex-1 flex flex-col gap-1 mt-2">
@@ -271,24 +376,21 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
                   <p className="text-xs text-[rgba(255,255,255,0.4)]">No nodes found</p>
                 )}
                 {filteredTools.length > 0 && (
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4">
                     <h4 className="text-xs text-[rgba(255,255,255,0.4)] mb-2">Tools ({filteredTools.length})</h4>
-                    {filteredTools.map((tool) => (
-                      <div
-                        key={tool.type}
-                        onClick={() => {
-                          if (tool.type === 'export') {
-                            onExport();
-                          } else {
-                            handleAddNode(tool.type);
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.12)] rounded-lg hover:border-[rgba(255,255,255,0.2)] cursor-pointer transition-all"
-                      >
-                        <tool.icon className="w-4 h-4 text-[rgba(255,255,255,0.6)]" />
-                        <span className="text-xs text-white">{tool.label}</span>
-                      </div>
-                    ))}
+                    <div className="grid grid-cols-2 gap-2">
+                      {filteredTools.map((tool) => (
+                        <div
+                          key={tool.type}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, tool.type)}
+                          className="flex flex-col items-center justify-center gap-2 p-4 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group w-[100px] h-[100px]"
+                        >
+                          <tool.icon className="w-6 h-6 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
+                          <span className="text-xs text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">{tool.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
@@ -350,10 +452,10 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
                   key={item.type}
                   draggable
                   onDragStart={(e) => handleDragStart(e, item.type)}
-                  className="flex flex-col items-center gap-2 p-3 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group"
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group w-[100px] h-[100px]"
                 >
-                  <item.icon className="w-5 h-5 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
-                  <span className="text-[11px] text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">
+                  <item.icon className="w-6 h-6 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
+                  <span className="text-xs text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">
                     {item.label}
                   </span>
                 </div>
@@ -368,7 +470,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
         <div className="w-60 h-full bg-[#212126] border-r border-[rgba(255,255,255,0.12)] flex flex-col overflow-hidden">
           {/* Header */}
           <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.12)]">
-            <span className="text-sm text-[#f6ffa8] font-medium">Text tools</span>
+            <span className="text-sm text-white font-medium">Tools</span>
           </div>
 
           {/* Search Input */}
@@ -387,13 +489,14 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
 
           {/* Tools Grid */}
           <div className="px-4 pb-3 flex-1 overflow-y-auto">
+            <h4 className="text-sm font-medium text-white mb-3">Text tools</h4>
             <div className="grid grid-cols-2 gap-2">
               {toolsList.map((tool) => (
                 <div
                   key={tool.type}
                   draggable
                   onDragStart={(e) => handleDragStart(e, tool.type)}
-                  className="flex flex-col items-center justify-center gap-2 p-4 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group min-h-[100px]"
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-[#212126] border border-[#343438] rounded-lg hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.04)] cursor-grab active:cursor-grabbing transition-all group w-[100px] h-[100px]"
                 >
                   <tool.icon className="w-6 h-6 text-[rgba(255,255,255,0.6)] group-hover:text-white" />
                   <span className="text-xs text-[rgba(255,255,255,0.6)] group-hover:text-white text-center leading-tight">

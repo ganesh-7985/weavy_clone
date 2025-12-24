@@ -39,6 +39,7 @@ interface WorkflowState {
   // Sidebar state
   isSidebarCollapsed: boolean;
   selectedLLMNodeId: string | null;
+  selectedImageDescriberNodeId: string | null;
   
   // Actions
   setNodes: (nodes: WorkflowNode[]) => void;
@@ -70,6 +71,7 @@ interface WorkflowState {
   // Sidebar
   toggleSidebar: () => void;
   setSelectedLLMNode: (nodeId: string | null) => void;
+  setSelectedImageDescriberNode: (nodeId: string | null) => void;
   
   // Workflow operations
   saveWorkflow: () => Workflow;
@@ -87,6 +89,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   historyIndex: -1,
   isSidebarCollapsed: false,
   selectedLLMNodeId: null,
+  selectedImageDescriberNodeId: null,
   
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
@@ -329,7 +332,15 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   
   toggleSidebar: () => set({ isSidebarCollapsed: !get().isSidebarCollapsed }),
   
-  setSelectedLLMNode: (nodeId) => set({ selectedLLMNodeId: nodeId }),
+  setSelectedLLMNode: (nodeId) => set({ 
+    selectedLLMNodeId: nodeId,
+    selectedImageDescriberNodeId: nodeId ? null : get().selectedImageDescriberNodeId 
+  }),
+  
+  setSelectedImageDescriberNode: (nodeId) => set({ 
+    selectedImageDescriberNodeId: nodeId,
+    selectedLLMNodeId: nodeId ? null : get().selectedLLMNodeId 
+  }),
   
   saveWorkflow: () => {
     const { workflowId, workflowName, nodes, edges } = get();

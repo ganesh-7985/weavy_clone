@@ -45,7 +45,12 @@ body {
 
 /* React Flow Customization */
 .react-flow__background {
-  background-color: var(--background) !important;
+  background-color: #0e0e13 !important;
+}
+
+.react-flow__background pattern circle {
+  fill: #66616b !important;
+  stroke-width: 0px !important;
 }
 
 .react-flow__minimap {
@@ -104,7 +109,7 @@ body {
   border: 1px solid #46464a !important;
 }
 
-/* Node selection */
+/* Node selection - no border */
 .react-flow__node.selected {
-  box-shadow: 0 0 0 2px var(--accent) !important;
+  box-shadow: none !important;
 }

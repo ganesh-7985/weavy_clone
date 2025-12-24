@@ -70,7 +70,7 @@ function VideoDescriberNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[400px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -85,7 +85,7 @@ function VideoDescriberNodeComponent({ id, data, selected }: NodeProps) {
             type="target"
             position={Position.Left}
             id={`video-${index + 1}`}
-            className="!w-4 !h-4 !bg-[#6eddb3] !border-4 !border-[#1a1a1f] !rounded-full"
+            className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#6eddb3] !rounded-full"
             style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
           />
           <HandleLabel label={`Video ${index + 1}`} color="#6eddb3" position="left" required={index === 0} visible={isHovered} />
@@ -109,7 +109,7 @@ function VideoDescriberNodeComponent({ id, data, selected }: NodeProps) {
       <div className="px-4 pb-4">
         {/* Output Area */}
         <div
-          className={`w-full h-[180px] px-3 py-3 rounded-lg text-sm overflow-y-auto ${
+          className={`w-full h-[420px] px-3 py-3 rounded-lg text-sm overflow-y-auto ${
             nodeData.error
               ? 'bg-red-500/10 border border-red-500/30 text-red-400'
               : 'bg-[#353539] border border-[#3a3a45] text-[#555555]'
@@ -136,7 +136,7 @@ function VideoDescriberNodeComponent({ id, data, selected }: NodeProps) {
       <div className="px-4 pb-4 flex items-center justify-between">
         <button
           onClick={handleAddVideoInput}
-          className="flex items-center gap-1.5 text-xs text-[#f6ffa8] hover:text-[#f6ffa8]/80 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-white hover:text-white/80 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           Add another video input
@@ -160,7 +160,7 @@ function VideoDescriberNodeComponent({ id, data, selected }: NodeProps) {
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-[#f1a0fa] !border-4 !border-[#1a1a1f] !rounded-full"
+          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
           style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
         <HandleLabel label="Text" color="#f1a0fa" position="right" visible={isHovered} />

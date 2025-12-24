@@ -49,6 +49,7 @@ function WorkflowCanvasInner() {
     addPromptEnhancerNode,
     addVideoDescriberNode,
     setSelectedLLMNode,
+    setSelectedImageDescriberNode,
   } = useWorkflowStore();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -57,10 +58,11 @@ function WorkflowCanvasInner() {
   const [tool, setTool] = useState<'select' | 'pan'>('select');
   const [zoom, setZoom] = useState(100);
 
-  // Close LLM settings sidebar when clicking on pane (not on a node)
+  // Close settings sidebars when clicking on pane (not on a node)
   const onPaneClick = useCallback(() => {
     setSelectedLLMNode(null);
-  }, [setSelectedLLMNode]);
+    setSelectedImageDescriberNode(null);
+  }, [setSelectedLLMNode, setSelectedImageDescriberNode]);
 
   // Update zoom display
   useEffect(() => {
@@ -196,7 +198,7 @@ function WorkflowCanvasInner() {
         selectionOnDrag={tool === 'select'}
         minZoom={0.1}
         maxZoom={2}
-        className="bg-[#18181b]"
+        className="bg-[#0d0d12]"
       >
         <Background
           variant={BackgroundVariant.Dots}
