@@ -12,7 +12,7 @@ interface ImageDescriberSettingsSidebarProps {
 
 export function ImageDescriberSettingsSidebar({ nodeId, nodeType }: ImageDescriberSettingsSidebarProps) {
   const { nodes } = useWorkflowStore();
-  const [model, setModel] = useState<GeminiModel>('gemini-2.0-flash');
+  const [model, setModel] = useState<GeminiModel>('gemini-3-flash-preview');
   const [instructions, setInstructions] = useState(
     nodeType === 'imageDescriber' 
       ? 'You are an expert image analyst tasked with providing detailed accurate and helpful descriptions of images. Your goal is to make visual content accessible through clear comprehensive text'

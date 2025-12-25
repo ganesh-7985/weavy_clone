@@ -83,17 +83,14 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
     }
   }, [id, updateNodeData, fileUrl]);
 
-  // Handle label component
+
   const HandleLabel = ({ label, color, position }: { label: string; color: string; position: 'left' | 'right' }) => (
     <div
-      className={`absolute top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap ${
+      className={`absolute top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap ${
         position === 'left' ? 'right-full mr-2' : 'left-full ml-2'
       }`}
     >
-      <span
-        className="text-[10px] font-medium px-1.5 py-0.5 rounded"
-        style={{ color }}
-      >
+      <span className="text-xs font-medium" style={{ color }}>
         {label}
       </span>
     </div>
@@ -101,22 +98,20 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[238px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] h-[285px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Output Handle */}
-      <div
-        className="group absolute"
-        style={{ right: -12, top: 60 }}
-      >
+      <div className="group absolute" style={{ right: -12, top: 60 }}>
         <Handle
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#6eddb3] !rounded-full"
+          className="w-4! h-4! bg-transparent! border-[3px]! border-[#6eddb3]! rounded-full!"
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
-        {isHovered && <HandleLabel label="File" color="#ffffff" position="right" />}
+        {isHovered && <HandleLabel label="File" color="#6eddb3" position="right" />}
       </div>
 
       {/* Header */}
@@ -147,7 +142,7 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
             <img
               src={nodeData.imageUrl}
               alt={nodeData.fileName || 'Uploaded image'}
-              className="w-full h-[200px] object-cover rounded-lg border border-[#343438]"
+              className="w-full h-[160px] object-cover rounded-lg border border-[#343438]"
             />
             <button
               onClick={handleRemoveImage}
@@ -161,7 +156,7 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
             onClick={handleUploadClick}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className="w-full h-[200px] flex flex-col items-center justify-center gap-3 rounded-lg cursor-pointer transition-colors relative overflow-hidden"
+            className="w-full h-[160px] flex flex-col items-center justify-center gap-3 rounded-lg cursor-pointer transition-colors relative overflow-hidden"
             style={{
               backgroundImage: `
                 radial-gradient(circle, transparent 3px, transparent 3px),

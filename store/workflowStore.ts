@@ -57,7 +57,6 @@ interface WorkflowState {
   addPromptConcatenatorNode: (position: { x: number; y: number }) => void;
   addImageDescriberNode: (position: { x: number; y: number }) => void;
   addPromptEnhancerNode: (position: { x: number; y: number }) => void;
-  addVideoDescriberNode: (position: { x: number; y: number }) => void;
   updateNodeData: (nodeId: string, data: Partial<TextNodeData | ImageNodeData | LLMNodeData | PromptNodeData | FileNodeData | PromptConcatenatorNodeData | ImageDescriberNodeData>) => void;
   deleteNode: (nodeId: string) => void;
   
@@ -158,7 +157,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       position,
       data: {
         label: 'Run Any LLM',
-        model: 'gemini-2.0-flash' as GeminiModel,
+        model: 'gemini-3-flash-preview' as GeminiModel,
         systemPrompt: '',
         userPrompt: '',
         output: '',
@@ -251,22 +250,6 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     get().saveToHistory();
   },
   
-  addVideoDescriberNode: (position) => {
-    const newNode: WorkflowNode = {
-      id: uuidv4(),
-      type: 'videoDescriber',
-      position,
-      data: {
-        label: 'Video Describer',
-        output: '',
-        isLoading: false,
-        error: null,
-        videoInputCount: 1,
-      },
-    };
-    set({ nodes: [...get().nodes, newNode] });
-    get().saveToHistory();
-  },
   
   updateNodeData: (nodeId, data) => {
     set({

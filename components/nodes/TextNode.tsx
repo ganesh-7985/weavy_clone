@@ -19,10 +19,7 @@ function HandleLabel({ label, color, position }: HandleLabelProps) {
         position === 'left' ? 'right-full mr-2' : 'left-full ml-2'
       }`}
     >
-      <span
-        className="text-xs font-medium"
-        style={{ color }}
-      >
+      <span className="text-xs font-medium" style={{ color }}>
         {label}
       </span>
     </div>
@@ -43,7 +40,7 @@ function TextNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[320px] max-w-[380px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] h-[137px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -66,23 +63,20 @@ function TextNodeComponent({ id, data, selected }: NodeProps) {
           value={nodeData.text}
           onChange={handleTextChange}
           placeholder="Enter your prompt..."
-          className="w-full h-24 px-3 py-2.5 bg-[#353539] border border-[#3a3a45] rounded-lg text-sm text-white placeholder-[#555555] resize-none focus:outline-none focus:border-[#a855f7] transition-colors"
+          className="w-full h-[60px] px-3 py-2.5 bg-[#353539] border border-[#3a3a45] rounded-lg text-sm text-white placeholder-[#555555] resize-none focus:outline-none focus:border-[#a855f7] transition-colors"
         />
       </div>
 
       {/* Output Handle */}
-      <div
-        className="group absolute"
-        style={{ right: -12, top: '50%', transform: 'translateY(-50%)' }}
-      >
+      <div className="group absolute" style={{ right: -12, top: '50%', transform: 'translateY(-50%)' }}>
         <Handle
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
+          className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
           style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
-        {isHovered && <HandleLabel label="Prompt" color="#a855f7" position="right" />}
+        {isHovered && <HandleLabel label="Prompt" color="#f1a0fa" position="right" />}
       </div>
     </div>
   );

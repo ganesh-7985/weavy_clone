@@ -30,15 +30,13 @@ function HandleLabel({ label, color, position, required, visible }: HandleLabelP
         position === 'left' ? 'right-full mr-2' : 'left-full ml-2'
       }`}
     >
-      <span
-        className="text-xs font-medium"
-        style={{ color }}
-      >
+      <span className="text-xs font-medium" style={{ color }}>
         {label}{required && <sup style={{ color }}>*</sup>}
       </span>
     </div>
   );
 }
+
 
 function ImageDescriberNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as ImageDescriberNodeData;
@@ -116,23 +114,19 @@ function ImageDescriberNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] transition-all duration-150 relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => setSelectedImageDescriberNode(id)}
     >
       {/* Image Input Handles */}
       {Array.from({ length: imageInputCount }).map((_, index) => (
-        <div
-          key={`image-${index}`}
-          className="group absolute"
-          style={{ left: -12, top: 90 + index * 40 }}
-        >
+        <div key={`image-${index}`} className="group absolute" style={{ left: -12, top: 90 + index * 40 }}>
           <Handle
             type="target"
             position={Position.Left}
             id={`image-${index + 1}`}
-            className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#6eddb3] !rounded-full"
+            className="w-4! h-4! bg-transparent! border-[3px]! border-[#6eddb3]! rounded-full!"
             style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
           />
           <HandleLabel label={`Image ${index + 1}`} color="#6eddb3" position="left" required={index === 0} visible={isHovered} />
@@ -199,15 +193,12 @@ function ImageDescriberNodeComponent({ id, data, selected }: NodeProps) {
       </div>
 
       {/* Output Handle */}
-      <div
-        className="group absolute"
-        style={{ right: -12, top: 90 }}
-      >
+      <div className="group absolute" style={{ right: -12, top: 90 }}>
         <Handle
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
+          className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
           style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
         <HandleLabel label="Text" color="#f1a0fa" position="right" visible={isHovered} />

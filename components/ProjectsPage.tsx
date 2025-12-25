@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Search, LayoutGrid, FolderOpen, Users, AppWindow, Sparkles, List, Grid3X3 } from 'lucide-react';
+import { Plus, Search, LayoutGrid, FolderOpen, Users, AppWindow, List, Grid3X3, Sparkles } from 'lucide-react';
 import { getAllWorkflows } from '@/lib/storage';
 import { Workflow } from '@/types';
 import { UserDropdown } from './UserDropdown';
@@ -289,8 +289,8 @@ export function ProjectsPage({ onOpenWorkflow, onCreateNew, onLoadTemplate }: Pr
                     className="grid grid-cols-[auto_1fr_100px_140px_120px] gap-4 px-4 py-3 items-center hover:bg-[#18181b] cursor-pointer transition-colors group"
                   >
                     {/* Thumbnail */}
-                    <div className="w-16 h-12 bg-[#18181b] rounded-lg flex items-center justify-center overflow-hidden">
-                      <Sparkles className="w-5 h-5 text-[#444]" />
+                    <div className="w-16 h-12 bg-[#2a2a2d] rounded-lg flex items-center justify-center overflow-hidden border border-[#3a3a3d]">
+                      <img src="/file-tree.png" alt="workflow" className="w-6 h-6 object-contain opacity-50" />
                     </div>
                     {/* Name */}
                     <div className="text-sm text-white truncate">{project.name || 'untitled'}</div>
@@ -313,8 +313,8 @@ export function ProjectsPage({ onOpenWorkflow, onCreateNew, onLoadTemplate }: Pr
                     className="group cursor-pointer"
                   >
                     {/* Thumbnail */}
-                    <div className="aspect-4/3 bg-[#18181b] rounded-lg mb-2 flex items-center justify-center overflow-hidden group-hover:ring-1 group-hover:ring-[#333] transition-all">
-                      <Sparkles className="w-10 h-10 text-[#333] group-hover:text-[#444]" />
+                    <div className="aspect-4/3 bg-[#212126] rounded-xl mb-2 flex items-center justify-center overflow-hidden border border-[#3a3a3d] group-hover:bg-[#4a4a4d] group-hover:border-[#4a4a4d] transition-all">
+                      <img src="/file-tree.png" alt="workflow" className="w-12 h-12 object-contain opacity-50 group-hover:opacity-70 transition-opacity" />
                     </div>
                     {/* Content */}
                     <h3 className="text-sm font-medium text-white mb-0.5 truncate">

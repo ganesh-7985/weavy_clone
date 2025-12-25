@@ -19,10 +19,7 @@ function HandleLabel({ label, color, position }: HandleLabelProps) {
         position === 'left' ? 'right-full mr-2' : 'left-full ml-2'
       }`}
     >
-      <span
-        className="text-xs font-medium"
-        style={{ color }}
-      >
+      <span className="text-xs font-medium" style={{ color }}>
         {label}
       </span>
     </div>
@@ -58,25 +55,21 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl min-w-[380px] max-w-[420px] transition-all duration-150"
+      className="bg-[#212126] border border-[#2a2a35] rounded-xl shadow-xl w-[465px] transition-all duration-150"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Input Handles */}
       {texts.map((_, index) => (
-        <div
-          key={`input-${index}`}
-          className="group absolute"
-          style={{ left: -12, top: `${100 + index * 100}px` }}
-        >
+        <div key={`input-${index}`} className="group absolute" style={{ left: -12, top: `${100 + index * 100}px` }}>
           <Handle
             type="target"
             position={Position.Left}
             id={`prompt-${index + 1}`}
-            className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
+            className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
             style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
           />
-          {isHovered && <HandleLabel label={`Prompt ${index + 1}`} color="#a855f7" position="left" />}
+          {isHovered && <HandleLabel label={`Prompt ${index + 1}`} color="#f1a0fa" position="left" />}
         </div>
       ))}
 
@@ -120,7 +113,7 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
         {/* Add Another Input Button */}
         <button
           onClick={handleAddInput}
-          className="flex items-center gap-2 text-sm text-[#a855f7] hover:text-[#c084fc] transition-colors"
+          className="flex items-center gap-2 text-sm text-white hover:text-white/80 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add another text input
@@ -128,18 +121,15 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
       </div>
 
       {/* Output Handle */}
-      <div
-        className="group absolute"
-        style={{ right: -12, top: 60 }}
-      >
+      <div className="group absolute" style={{ right: -12, top: 60 }}>
         <Handle
           type="source"
           position={Position.Right}
           id="output"
-          className="!w-4 !h-4 !bg-transparent !border-[3px] !border-[#f1a0fa] !rounded-full"
+          className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
           style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
         />
-        {isHovered && <HandleLabel label="Prompt" color="#a855f7" position="right" />}
+        {isHovered && <HandleLabel label="Prompt" color="#f1a0fa" position="right" />}
       </div>
     </div>
   );

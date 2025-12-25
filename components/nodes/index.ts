@@ -5,5 +5,4 @@ export { PromptNode } from './PromptNode';
 export { FileNode } from './FileNode';
 export { PromptConcatenatorNode } from './PromptConcatenatorNode';
 export { ImageDescriberNode } from './ImageDescriberNode';
-export { PromptEnhancerNode } from './PromptEnhancerNode';
-export { VideoDescriberNode } from './VideoDescriberNode';
+export { PromptEnhancerNode } from './PromptEnhancerNode'

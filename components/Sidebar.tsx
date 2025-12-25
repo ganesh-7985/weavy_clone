@@ -150,8 +150,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight, description: 'Combine multiple prompts' },
     { type: 'promptEnhancer', label: 'Prompt Enhancer', icon: Wand2, description: 'Enhance prompts with AI' },
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles, description: 'Run AI models' },
-    { type: 'imageDescriber', label: 'Image Describer', icon: FileImage, description: 'Describe images with AI' },
-    { type: 'videoDescriber', label: 'Video Describer', icon: Video, description: 'Describe videos with AI' },
+    { type: 'imageDescriber', label: 'Image Describer', icon: FileImage, description: 'Describe images with AI' }
   ];
 
   // Filter tools based on search
@@ -207,11 +206,19 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
             title="Menu"
           >
             <div className="flex items-center gap-1">
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-                <rect x="2" y="4" width="4" height="16" rx="1" />
-                <rect x="8" y="4" width="4" height="16" rx="1" />
-                <rect x="14" y="8" width="4" height="12" rx="1" />
-                <rect x="20" y="12" width="2" height="8" rx="0.5" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="25" viewBox="0 0 30 25" fill="none" className="w-6 h-5">
+                <g clipPath="url(#clip0_1_15019)">
+                  <path d="M7.89437 0H0.5V16.3638H7.89437V0Z" fill="white"/>
+                  <path d="M13.2733 16.2319H5.87891V25.0002H13.2733V16.2319Z" fill="white"/>
+                  <path d="M24.0291 16.2319H16.6348V25.0002H24.0291V16.2319Z" fill="white"/>
+                  <path d="M18.6493 0H11.2549V16.3638H18.6493V0Z" fill="white"/>
+                  <path d="M29.408 0H22.0137V16.3638H29.408V0Z" fill="white"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_1_15019">
+                    <rect width="28.9078" height="25" fill="white" transform="translate(0.5)"/>
+                  </clipPath>
+                </defs>
               </svg>
               <span className="text-[10px] text-[#666666]">▾</span>
             </div>

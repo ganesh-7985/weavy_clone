@@ -76,11 +76,15 @@ function FileNodeComponent({ id, data, selected }: NodeProps) {
 
   const isImage = nodeData.fileType?.startsWith('image/');
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <div
-      className={`min-w-[280px] max-w-[350px] bg-[#1a1a24] rounded-xl border ${
+      className={`w-[465px] h-[285px] bg-[#212126] rounded-xl border ${
         selected ? 'border-[#a855f7]' : 'border-[#2a2a35]'
-      } shadow-xl`}
+      } shadow-xl relative`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -106,12 +110,20 @@ function FileNodeComponent({ id, data, selected }: NodeProps) {
 
       {/* Content */}
       <div className="px-4 pb-4">
-        {/* File Upload Area */}
+        {/* File Upload Area with checkered background */}
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onClick={() => fileInputRef.current?.click()}
-          className="relative min-h-[180px] bg-[#252530] border border-dashed border-[#3a3a45] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#a855f7] transition-colors overflow-hidden"
+          className="relative h-[180px] rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden"
+          style={{
+            background: `
+              repeating-conic-gradient(
+                #1a1a22 0% 25%,
+                #252530 0% 50%
+              ) 50% / 20px 20px
+            `,
+          }}
         >
           {nodeData.fileUrl ? (
             <>
@@ -119,7 +131,7 @@ function FileNodeComponent({ id, data, selected }: NodeProps) {
                 <img
                   src={nodeData.fileUrl}
                   alt={nodeData.fileName || 'Uploaded file'}
-                  className="w-full h-full object-contain"
+                  className="w-full max-h-[280px] object-contain"
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 p-4">
@@ -143,8 +155,8 @@ function FileNodeComponent({ id, data, selected }: NodeProps) {
             </>
           ) : (
             <>
-              <Upload className="w-6 h-6 text-[#555555] mb-2" />
-              <span className="text-sm text-[#888888]">
+              <Upload className="w-6 h-6 text-white mb-2" />
+              <span className="text-sm text-white">
                 Drag & drop or click to upload
               </span>
             </>
@@ -173,17 +185,19 @@ function FileNodeComponent({ id, data, selected }: NodeProps) {
       </div>
 
       {/* Output Handle */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="output"
-        className="w-3 h-3 bg-[#a855f7] border-2 border-[#0d0d12]"
-        style={{ right: -6, top: '50%' }}
-      />
-      
-      {/* Handle Label */}
-      <div className="absolute right-[-35px] top-1/2 -translate-y-1/2 text-xs text-[#a855f7] font-medium">
-        File
+      <div className="group absolute" style={{ right: -12, top: 60 }}>
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="output"
+          className="w-4! h-4! bg-transparent! border-[3px]! border-[#6eddb3]! rounded-full!"
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+        />
+        {isHovered && (
+          <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 pointer-events-none whitespace-nowrap">
+            <span className="text-xs font-medium" style={{ color: '#6eddb3' }}>File</span>
+          </div>
+        )}
       </div>
     </div>
   );

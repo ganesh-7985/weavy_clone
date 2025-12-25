@@ -11,7 +11,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { MousePointer2, Hand, Undo2, Redo2, ChevronDown } from 'lucide-react';
 
-import { TextNode, ImageNode, LLMNode, PromptNode, FileNode, PromptConcatenatorNode, ImageDescriberNode, PromptEnhancerNode, VideoDescriberNode } from '@/components/nodes';
+import { TextNode, ImageNode, LLMNode, PromptNode, FileNode, PromptConcatenatorNode, ImageDescriberNode, PromptEnhancerNode } from '@/components/nodes';
 import { useWorkflowStore } from '@/store/workflowStore';
 
 const nodeTypes = {
@@ -23,7 +23,6 @@ const nodeTypes = {
   promptConcatenator: PromptConcatenatorNode,
   imageDescriber: ImageDescriberNode,
   promptEnhancer: PromptEnhancerNode,
-  videoDescriber: VideoDescriberNode,
 };
 
 function WorkflowCanvasInner() {
@@ -47,7 +46,6 @@ function WorkflowCanvasInner() {
     addPromptConcatenatorNode,
     addImageDescriberNode,
     addPromptEnhancerNode,
-    addVideoDescriberNode,
     setSelectedLLMNode,
     setSelectedImageDescriberNode,
   } = useWorkflowStore();
@@ -165,12 +163,9 @@ function WorkflowCanvasInner() {
         case 'promptEnhancer':
           addPromptEnhancerNode(position);
           break;
-        case 'videoDescriber':
-          addVideoDescriberNode(position);
-          break;
       }
     },
-    [screenToFlowPosition, addPromptNode, addFileNode, addLLMNode, addTextNode, addImageNode, addPromptConcatenatorNode, addImageDescriberNode, addPromptEnhancerNode, addVideoDescriberNode]
+    [screenToFlowPosition, addPromptNode, addFileNode, addLLMNode, addTextNode, addImageNode, addPromptConcatenatorNode, addImageDescriberNode, addPromptEnhancerNode]
   );
 
   return (
