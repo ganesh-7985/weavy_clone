@@ -26,6 +26,7 @@ export function createProductListingGeneratorWorkflow(): Workflow {
         fileBase64: null,
         fileName: null,
         fileType: null,
+        linkUrl: null,
       },
     },
     // Text Node - Product name & specs
@@ -246,19 +247,19 @@ export function createProductContentPipelineWorkflow(): Workflow {
       id: image1Id,
       type: 'file',
       position: { x: 40, y: 560 },
-      data: { label: 'Product Photo 1', fileUrl: null, fileBase64: null, fileName: null, fileType: null },
+      data: { label: 'Product Photo 1', fileUrl: null, fileBase64: null, fileName: null, fileType: null, linkUrl: null },
     },
     {
       id: image2Id,
       type: 'file',
       position: { x: 40, y: 960 },
-      data: { label: 'Product Photo 2', fileUrl: null, fileBase64: null, fileName: null, fileType: null },
+      data: { label: 'Product Photo 2', fileUrl: null, fileBase64: null, fileName: null, fileType: null, linkUrl: null },
     },
     {
       id: image3Id,
       type: 'file',
       position: { x: 40, y: 1360 },
-      data: { label: 'Product Photo 3', fileUrl: null, fileBase64: null, fileName: null, fileType: null },
+      data: { label: 'Product Photo 3', fileUrl: null, fileBase64: null, fileName: null, fileType: null, linkUrl: null },
     },
 
     // Analyzer (center)
