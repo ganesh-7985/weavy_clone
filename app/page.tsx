@@ -7,7 +7,7 @@ import { ProjectsPage } from '@/components/ProjectsPage';
 import { LLMSettingsSidebar } from '@/components/LLMSettingsSidebar';
 import { ImageDescriberSettingsSidebar } from '@/components/ImageDescriberSettingsSidebar';
 import { useWorkflowStore } from '@/store/workflowStore';
-import { createProductListingGeneratorWorkflow } from '@/lib/templates';
+import { createProductListingGeneratorWorkflow, createProductContentPipelineWorkflow } from '@/lib/templates';
 import {
   saveWorkflowToStorage,
   exportWorkflowAsJSON,
@@ -168,10 +168,24 @@ export default function Home() {
     [loadWorkflow, showToast]
   );
 
-  const handleLoadTemplate = useCallback(() => {
-    const workflow = createProductListingGeneratorWorkflow();
+  const handleLoadTemplate = useCallback((templateId: string) => {
+    let workflowName = 'Template';
+    const workflow = (() => {
+      switch (templateId) {
+        case 'product-content-pipeline':
+          workflowName = 'Product Content Pipeline';
+          return createProductContentPipelineWorkflow();
+        default:
+          workflowName = 'Product Listing Generator';
+          return createProductListingGeneratorWorkflow();
+      }
+    })();
+
     loadWorkflow(workflow);
-    showToast('Product Listing Generator template loaded!', 'success');
+    setCurrentWorkflowId(workflow.id);
+    setShowProjects(false);
+    window.history.pushState({ view: 'canvas' }, '', '#canvas');
+    showToast(`${workflowName} template loaded!`, 'success');
   }, [loadWorkflow, showToast]);
 
   if (!isLoaded) {
@@ -247,18 +261,15 @@ export default function Home() {
         onExport={handleExport}
         onImport={handleImport}
         onSave={handleSave}
-        onLoadTemplate={handleLoadTemplate}
+        onLoadTemplate={() => handleLoadTemplate('product-content-pipeline')}
         onBackToProjects={handleBackToProjects}
         workflowName={workflowName}
       />
 
-      {/* Canvas - Full Screen */}
       <WorkflowCanvas />
 
-      {/* Right Sidebar - LLM Settings */}
       {selectedLLMNodeId && <LLMSettingsSidebar />}
       
-      {/* Right Sidebar - ImageDescriber/PromptEnhancer Settings */}
       {selectedImageDescriberNodeId && selectedDescriberNodeType && (
         <ImageDescriberSettingsSidebar 
           nodeId={selectedImageDescriberNodeId} 
@@ -266,7 +277,6 @@ export default function Home() {
         />
       )}
 
-      {/* Toast Notifications */}
       <div className="fixed bottom-16 right-4 z-50 flex flex-col gap-2">
         {toasts.map((toast) => (
           <div

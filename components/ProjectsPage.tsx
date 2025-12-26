@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 interface ProjectsPageProps {
   onOpenWorkflow: (workflowId: string) => void;
   onCreateNew: () => void;
-  onLoadTemplate?: () => void;
+  onLoadTemplate?: (templateId: string) => void;
 }
 
 // Template data for workflow library
@@ -21,6 +21,7 @@ const WORKFLOW_TEMPLATES = [
   { id: 'editing-images', name: 'Editing Images', image: '/templates/editing.jpg' },
   { id: 'compositor-node', name: 'Compositor Node', image: '/templates/compositor.jpg' },
   { id: 'image-to-video', name: 'Image to Video', image: '/templates/video.jpg' },
+  { id: 'product-content-pipeline', name: 'Product Content Pipeline', image: '/templates/product-content.jpg' },
 ];
 
 // Tutorial data
@@ -187,7 +188,7 @@ export function ProjectsPage({ onOpenWorkflow, onCreateNew, onLoadTemplate }: Pr
               {currentItems.map((item) => (
                 <div
                   key={item.id}
-                  onClick={onLoadTemplate}
+                  onClick={() => onLoadTemplate?.(item.id)}
                   className="shrink-0 w-[140px] cursor-pointer group"
                 >
                   <div className="aspect-4/3 bg-[#252528] rounded-lg mb-2 flex items-center justify-center overflow-hidden border border-transparent group-hover:border-[rgba(255,255,255,0.12)] transition-all">

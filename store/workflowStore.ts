@@ -106,13 +106,19 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
   
   onConnect: (connection) => {
+    // Determine edge color based on source handle type
+    // Green (#6eddb3) for file/image outputs, Pink (#f1a0fa) for text/prompt outputs
+    const sourceNode = get().nodes.find(n => n.id === connection.source);
+    const isFileOrImageSource = sourceNode?.type === 'file' || sourceNode?.type === 'image';
+    const edgeColor = isFileOrImageSource ? '#6eddb3' : '#f1a0fa';
+    
     const newEdge: WorkflowEdge = {
       ...connection,
       id: uuidv4(),
       source: connection.source,
       target: connection.target,
-      animated: true,
-      style: { stroke: '#a855f7', strokeWidth: 2 },
+      animated: false,
+      style: { stroke: edgeColor, strokeWidth: 2 },
     };
     set({
       edges: addEdge(newEdge, get().edges) as WorkflowEdge[],

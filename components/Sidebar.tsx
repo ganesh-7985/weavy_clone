@@ -35,6 +35,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
   const {
     addTextNode,
     addImageNode,
+    addFileNode,
     addLLMNode,
     addPromptConcatenatorNode,
     addImageDescriberNode,
@@ -85,6 +86,9 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
         case 'image':
           addImageNode(position);
           break;
+        case 'file':
+          addFileNode(position);
+          break;
         case 'llm':
           addLLMNode(position);
           break;
@@ -96,7 +100,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
           break;
       }
     },
-    [addTextNode, addImageNode, addLLMNode, addPromptConcatenatorNode, addImageDescriberNode]
+    [addTextNode, addImageNode, addFileNode, addLLMNode, addPromptConcatenatorNode, addImageDescriberNode]
   );
 
   const toggleSearchPanel = () => {
@@ -129,12 +133,11 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     }
   };
 
-  // Quick access items - 4 buttons including image
+  // Quick access items - 3 buttons
   const quickAccessItems = [
     { type: 'text', label: 'Prompt', icon: Type },
-    { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight },
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles },
-    { type: 'image', label: 'File', icon: FileImage },
+    { type: 'file', label: 'File', icon: FileImage },
   ];
 
   // Icon sidebar items - matching Weavy's toolbar
@@ -150,6 +153,7 @@ export function Sidebar({ onExport, onImport, onSave, onLoadTemplate, onBackToPr
     { type: 'promptConcatenator', label: 'Prompt Concatenator', icon: ChevronsRight, description: 'Combine multiple prompts' },
     { type: 'promptEnhancer', label: 'Prompt Enhancer', icon: Wand2, description: 'Enhance prompts with AI' },
     { type: 'llm', label: 'Run Any LLM', icon: Sparkles, description: 'Run AI models' },
+    { type: 'file', label: 'File', icon: FileImage, description: 'Upload or link files' },
     { type: 'imageDescriber', label: 'Image Describer', icon: FileImage, description: 'Describe images with AI' }
   ];
 

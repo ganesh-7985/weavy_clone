@@ -41,7 +41,7 @@ function PromptNodeComponent({ id, data, selected }: NodeProps) {
   return (
     <div
       className="bg-[#212126] rounded-xl border border-[#2a2a35] shadow-xl"
-      style={{ width: '285px', height: '166px' }}
+      style={{ width: '285px', height: '220px' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -64,20 +64,37 @@ function PromptNodeComponent({ id, data, selected }: NodeProps) {
           value={nodeData.text || ''}
           onChange={handleTextChange}
           placeholder="Enter your prompt here..."
-          className="w-full h-[60px] bg-[#353539] border border-[#3a3a45] rounded-lg px-3 py-2 text-sm text-white placeholder-[#555555] resize-none focus:outline-none focus:border-[#a855f7] transition-colors"
+          className="w-full h-[120px] bg-[#353539] border border-[#3a3a45] rounded-lg px-3 py-2 text-sm text-white placeholder-[#555555] resize-none focus:outline-none transition-colors"
         />
       </div>
 
-      {/* Output Handle */}
-      <div className="group absolute" style={{ right: -12, top: '50%', transform: 'translateY(-50%)' }}>
+      {/* Output Handle with curved background */}
+      <div className="group absolute" style={{ right: -8, top: '50%', transform: 'translateY(-50%)' }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            left: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopRightRadius: '20px',
+            borderBottomRightRadius: '20px',
+          }}
+        />
         <Handle
           type="source"
           position={Position.Right}
           id="output"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
-        {isHovered && <HandleLabel label="Prompt" color="#f1a0fa" position="right" />}
+        {isHovered && (
+          <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 pointer-events-none whitespace-nowrap z-20">
+            <span className="text-xs font-medium" style={{ color: '#f1a0fa' }}>Prompt</span>
+          </div>
+        )}
       </div>
     </div>
   );

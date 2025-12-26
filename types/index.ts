@@ -49,6 +49,7 @@ export interface LLMNodeData extends Record<string, unknown> {
   error: string | null;
   temperature: number;
   thinking: boolean;
+  imageInputCount?: number;
 }
 
 export interface PromptConcatenatorNodeData extends Record<string, unknown> {

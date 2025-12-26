@@ -32,12 +32,16 @@ function HandleLabel({ label, color, position, required, visible }: HandleLabelP
 function LLMNodeComponent({ id, data, selected }: NodeProps) {
   const nodeData = data as LLMNodeData;
   const { updateNodeData, deleteNode, edges, nodes, setSelectedLLMNode } = useWorkflowStore();
-  const [imageInputCount, setImageInputCount] = useState(1);
+  const [imageInputCount, setImageInputCount] = useState(() => {
+    const count = (nodeData as unknown as { imageInputCount?: number }).imageInputCount;
+    return typeof count === 'number' && count > 0 ? count : 1;
+  });
   const [isHovered, setIsHovered] = useState(false);
 
   const getConnectedInputs = useCallback(() => {
     const incomingEdges = edges.filter((edge) => edge.target === id);
     const textInputs: string[] = [];
+    const systemPromptInputs: string[] = [];
     const imageInputs: { base64: string; mimeType: string }[] = [];
 
     for (const edge of incomingEdges) {
@@ -47,7 +51,20 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       if (sourceNode.type === 'text') {
         const textData = sourceNode.data as TextNodeData;
         if (textData.text) {
-          textInputs.push(textData.text);
+          if (edge.targetHandle === 'system-prompt') {
+            systemPromptInputs.push(textData.text);
+          } else {
+            textInputs.push(textData.text);
+          }
+        }
+      } else if (sourceNode.type === 'llm') {
+        const llmData = sourceNode.data as LLMNodeData;
+        if (llmData.output) {
+          if (edge.targetHandle === 'system-prompt') {
+            systemPromptInputs.push(llmData.output);
+          } else {
+            textInputs.push(llmData.output);
+          }
         }
       } else if (sourceNode.type === 'image') {
         const imageData = sourceNode.data as ImageNodeData;
@@ -60,7 +77,7 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       }
     }
 
-    return { textInputs, imageInputs };
+    return { textInputs, systemPromptInputs, imageInputs };
   }, [edges, nodes, id]);
 
   const handleRun = useCallback(async () => {
@@ -71,15 +88,18 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       
       let fullPrompt = nodeData.userPrompt || 'Describe the input';
       if (textInputs.length > 0) {
-        fullPrompt = textInputs.join('\n\n');
+        fullPrompt = [nodeData.userPrompt, ...textInputs].filter(Boolean).join('\n\n');
       }
+
+      const { systemPromptInputs } = getConnectedInputs();
+      const fullSystemPrompt = [nodeData.systemPrompt, ...systemPromptInputs].filter(Boolean).join('\n\n') || undefined;
 
       const response = await fetch('/api/llm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: nodeData.model,
-          systemPrompt: nodeData.systemPrompt || undefined,
+          systemPrompt: fullSystemPrompt,
           userPrompt: fullPrompt,
           images: imageInputs.length > 0 ? imageInputs : undefined,
           temperature: nodeData.temperature,
@@ -102,8 +122,12 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
   }, [id, nodeData, updateNodeData, getConnectedInputs]);
 
   const handleAddImageInput = useCallback(() => {
-    setImageInputCount((prev) => prev + 1);
-  }, []);
+    setImageInputCount((prev) => {
+      const next = prev + 1;
+      updateNodeData(id, { imageInputCount: next } as Partial<LLMNodeData>);
+      return next;
+    });
+  }, [id, updateNodeData]);
 
   const handleNodeClick = useCallback(() => {
     setSelectedLLMNode(id);
@@ -116,39 +140,78 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Prompt Handle */}
-      <div className="group absolute" style={{ left: -12, top: 60 }}>
+      {/* Prompt Handle with curved background */}
+      <div className="group absolute" style={{ left: -8, top: 60 }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            right: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopLeftRadius: '20px',
+            borderBottomLeftRadius: '20px',
+          }}
+        />
         <Handle
           type="target"
           position={Position.Left}
           id="prompt"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-          style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', left: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
         <HandleLabel label="Prompt" color="#f1a0fa" position="left" required visible={isHovered} />
       </div>
 
-      {/* System Prompt Handle */}
-      <div className="group absolute" style={{ left: -12, top: 100 }}>
+      {/* System Prompt Handle with curved background */}
+      <div className="group absolute" style={{ left: -8, top: 108 }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            right: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopLeftRadius: '20px',
+            borderBottomLeftRadius: '20px',
+          }}
+        />
         <Handle
           type="target"
           position={Position.Left}
           id="system-prompt"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-          style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', left: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
         <HandleLabel label="System" color="#f1a0fa" position="left" visible={isHovered} />
       </div>
 
-      {/* Image Handles */}
+      {/* Image Handles with curved background */}
       {Array.from({ length: imageInputCount }).map((_, index) => (
-        <div key={`image-${index}`} className="group absolute" style={{ left: -12, top: 140 + index * 40 }}>
+        <div key={`image-${index}`} className="group absolute" style={{ left: -8, top: 156 + index * 48 }}>
+          <div 
+            className="absolute"
+            style={{
+              width: '24px',
+              height: '40px',
+              background: '#212126',
+              right: '4px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              borderTopLeftRadius: '20px',
+              borderBottomLeftRadius: '20px',
+            }}
+          />
           <Handle
             type="target"
             position={Position.Left}
             id={`image-${index + 1}`}
             className="w-4! h-4! bg-transparent! border-[3px]! border-[#6eddb3]! rounded-full!"
-            style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
+            style={{ position: 'relative', left: 0, top: 0, transform: 'none', zIndex: 10 }}
           />
           <HandleLabel label={`Image ${index + 1}`} color="#6eddb3" position="left" visible={isHovered} />
         </div>
@@ -213,14 +276,27 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
         </button>
       </div>
 
-      {/* Output Handle */}
-      <div className="group absolute" style={{ right: -12, top: 60 }}>
+      {/* Output Handle with curved background */}
+      <div className="group absolute" style={{ right: -8, top: 60 }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            left: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopRightRadius: '20px',
+            borderBottomRightRadius: '20px',
+          }}
+        />
         <Handle
           type="source"
           position={Position.Right}
           id="output"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
         <HandleLabel label="Text" color="#f1a0fa" position="right" visible={isHovered} />
       </div>

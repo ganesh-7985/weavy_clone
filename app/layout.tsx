@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Galaxy.AI - LLM Workflow Builder",
+  title: "Weavy",
   description: "A visual workflow builder for LLM-powered applications. Create, connect, and execute AI workflows with Google Gemini integration.",
+  icons: {
+    icon: "/logo.jpeg",
+  },
 };
 
 export default function RootLayout({

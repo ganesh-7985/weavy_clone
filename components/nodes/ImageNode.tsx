@@ -102,16 +102,33 @@ function ImageNodeComponent({ id, data, selected }: NodeProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Output Handle */}
-      <div className="group absolute" style={{ right: -12, top: 60 }}>
+      {/* Output Handle with curved background */}
+      <div className="group absolute" style={{ right: -8, top: 60 }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            left: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopRightRadius: '20px',
+            borderBottomRightRadius: '20px',
+          }}
+        />
         <Handle
           type="source"
           position={Position.Right}
           id="output"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#6eddb3]! rounded-full!"
-          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
-        {isHovered && <HandleLabel label="File" color="#6eddb3" position="right" />}
+        {isHovered && (
+          <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 pointer-events-none whitespace-nowrap z-20">
+            <span className="text-xs font-medium" style={{ color: '#6eddb3' }}>File</span>
+          </div>
+        )}
       </div>
 
       {/* Header */}

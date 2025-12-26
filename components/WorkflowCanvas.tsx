@@ -181,10 +181,10 @@ function WorkflowCanvasInner() {
         nodeTypes={nodeTypes}
         defaultViewport={{ x: 200, y: 100, zoom: 0.5 }}
         defaultEdgeOptions={{
-          animated: true,
-          style: { stroke: '#a855f7', strokeWidth: 2 },
+          animated: false,
+          style: { stroke: '#f1a0fa', strokeWidth: 2 },
         }}
-        connectionLineStyle={{ stroke: '#a855f7', strokeWidth: 2 }}
+        connectionLineStyle={{ stroke: '#f1a0fa', strokeWidth: 2 }}
         proOptions={{ hideAttribution: true }}
         panOnDrag={tool === 'pan' ? true : [1, 2]}
         panOnScroll={true}

@@ -66,6 +66,16 @@ body {
   stroke-width: 2px !important;
 }
 
+/* Edge styling - solid lines with matching colors */
+.react-flow__edge-path {
+  stroke-width: 2px !important;
+}
+
+/* Remove any dashed stroke styling */
+.react-flow__edge path {
+  stroke-dasharray: none !important;
+}
+
 /* Custom scrollbar - Weavy style */
 ::-webkit-scrollbar {
   width: 4px;

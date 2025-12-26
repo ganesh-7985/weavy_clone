@@ -59,17 +59,34 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Input Handles */}
+      {/* Input Handles with curved background */}
       {texts.map((_, index) => (
-        <div key={`input-${index}`} className="group absolute" style={{ left: -12, top: `${100 + index * 100}px` }}>
+        <div key={`input-${index}`} className="group absolute" style={{ left: -8, top: `${100 + index * 100}px` }}>
+          <div 
+            className="absolute"
+            style={{
+              width: '24px',
+              height: '40px',
+              background: '#212126',
+              right: '4px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              borderTopLeftRadius: '20px',
+              borderBottomLeftRadius: '20px',
+            }}
+          />
           <Handle
             type="target"
             position={Position.Left}
             id={`prompt-${index + 1}`}
             className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-            style={{ position: 'relative', left: 0, top: 0, transform: 'none' }}
+            style={{ position: 'relative', left: 0, top: 0, transform: 'none', zIndex: 10 }}
           />
-          {isHovered && <HandleLabel label={`Prompt ${index + 1}`} color="#f1a0fa" position="left" />}
+          {isHovered && (
+            <div className="absolute top-1/2 -translate-y-1/2 right-full mr-2 pointer-events-none whitespace-nowrap z-20">
+              <span className="text-xs font-medium" style={{ color: '#f1a0fa' }}>Prompt {index + 1}</span>
+            </div>
+          )}
         </div>
       ))}
 
@@ -120,16 +137,33 @@ function PromptConcatenatorNodeComponent({ id, data, selected }: NodeProps) {
         </button>
       </div>
 
-      {/* Output Handle */}
-      <div className="group absolute" style={{ right: -12, top: 60 }}>
+      {/* Output Handle with curved background */}
+      <div className="group absolute" style={{ right: -8, top: 60 }}>
+        <div 
+          className="absolute"
+          style={{
+            width: '24px',
+            height: '40px',
+            background: '#212126',
+            left: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            borderTopRightRadius: '20px',
+            borderBottomRightRadius: '20px',
+          }}
+        />
         <Handle
           type="source"
           position={Position.Right}
           id="output"
           className="w-4! h-4! bg-transparent! border-[3px]! border-[#f1a0fa]! rounded-full!"
-          style={{ position: 'relative', right: 0, top: 0, transform: 'none' }}
+          style={{ position: 'relative', right: 0, top: 0, transform: 'none', zIndex: 10 }}
         />
-        {isHovered && <HandleLabel label="Prompt" color="#f1a0fa" position="right" />}
+        {isHovered && (
+          <div className="absolute top-1/2 -translate-y-1/2 left-full ml-2 pointer-events-none whitespace-nowrap z-20">
+            <span className="text-xs font-medium" style={{ color: '#f1a0fa' }}>Prompt</span>
+          </div>
+        )}
       </div>
     </div>
   );
