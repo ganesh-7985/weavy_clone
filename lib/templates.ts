@@ -161,34 +161,6 @@ export function createProductListingGeneratorWorkflow(): Workflow {
       style: { stroke: '#f1a0fa', strokeWidth: 2 },
     },
 
-    // Writers → Output text buckets
-    {
-      id: uuidv4(),
-      source: amazonLLMId,
-      target: amazonOutId,
-      sourceHandle: 'output',
-      targetHandle: 'input',
-      animated: false,
-      style: { stroke: '#f1a0fa', strokeWidth: 2 },
-    },
-    {
-      id: uuidv4(),
-      source: instagramLLMId,
-      target: instagramOutId,
-      sourceHandle: 'output',
-      targetHandle: 'input',
-      animated: false,
-      style: { stroke: '#f1a0fa', strokeWidth: 2 },
-    },
-    {
-      id: uuidv4(),
-      source: seoLLMId,
-      target: seoOutId,
-      sourceHandle: 'output',
-      targetHandle: 'input',
-      animated: false,
-      style: { stroke: '#f1a0fa', strokeWidth: 2 },
-    },
   ];
 
   return {
