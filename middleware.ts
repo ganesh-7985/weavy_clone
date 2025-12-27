@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // Never auth-redirect API routes; they must return JSON responses.
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
   // Skip middleware if Supabase is not configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next();

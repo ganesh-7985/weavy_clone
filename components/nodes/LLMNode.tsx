@@ -4,7 +4,7 @@ import { memo, useCallback, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Loader2, Plus } from 'lucide-react';
 import { NodeMenu } from './NodeMenu';
-import { LLMNodeData, TextNodeData, ImageNodeData, WorkflowNode } from '@/types';
+import { FileNodeData, LLMNodeData, TextNodeData, ImageNodeData, WorkflowNode } from '@/types';
 import { useWorkflowStore } from '@/store/workflowStore';
 
 interface HandleLabelProps {
@@ -74,6 +74,14 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
             mimeType: 'image/jpeg',
           });
         }
+      } else if (sourceNode.type === 'file') {
+        const fileData = sourceNode.data as FileNodeData;
+        if (fileData.fileBase64 && fileData.fileType?.startsWith('image/')) {
+          imageInputs.push({
+            base64: fileData.fileBase64,
+            mimeType: fileData.fileType,
+          });
+        }
       }
     }
 
@@ -84,14 +92,13 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
     updateNodeData(id, { isLoading: true, error: null, output: '' });
 
     try {
-      const { textInputs, imageInputs } = getConnectedInputs();
+      const { textInputs, systemPromptInputs, imageInputs } = getConnectedInputs();
       
       let fullPrompt = nodeData.userPrompt || 'Describe the input';
       if (textInputs.length > 0) {
         fullPrompt = [nodeData.userPrompt, ...textInputs].filter(Boolean).join('\n\n');
       }
 
-      const { systemPromptInputs } = getConnectedInputs();
       const fullSystemPrompt = [nodeData.systemPrompt, ...systemPromptInputs].filter(Boolean).join('\n\n') || undefined;
 
       const response = await fetch('/api/llm', {
@@ -106,13 +113,45 @@ function LLMNodeComponent({ id, data, selected }: NodeProps) {
         }),
       });
 
-      const result = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const rawText = await response.text();
 
-      if (result.success) {
-        updateNodeData(id, { output: result.output, isLoading: false });
-      } else {
-        updateNodeData(id, { error: result.error, isLoading: false });
+      // Some failures (dev overlay, proxy errors, timeouts) return HTML or empty bodies.
+      const parseJsonSafe = () => {
+        try {
+          return JSON.parse(rawText) as { success?: boolean; output?: string; error?: string };
+        } catch {
+          return null;
+        }
+      };
+
+      const result = contentType.includes('application/json') ? parseJsonSafe() : parseJsonSafe();
+
+      if (!response.ok) {
+        const msg =
+          result?.error ||
+          `Request failed (${response.status} ${response.statusText}). ` +
+            `${rawText ? `Response: ${rawText.slice(0, 200)}` : 'Empty response body.'}`;
+        updateNodeData(id, { error: msg, isLoading: false });
+        return;
       }
+
+      if (result?.success) {
+        updateNodeData(id, { output: result.output || '', isLoading: false });
+        return;
+      }
+
+      if (result && result.success === false) {
+        updateNodeData(id, { error: result.error || 'Unknown error', isLoading: false });
+        return;
+      }
+
+      updateNodeData(id, {
+        error:
+          `Unexpected response format. ` +
+          `${rawText ? `Response: ${rawText.slice(0, 200)}` : 'Empty response body.'}`,
+        isLoading: false,
+      });
     } catch (error) {
       updateNodeData(id, {
         error: error instanceof Error ? error.message : 'An error occurred',
